@@ -142,6 +142,19 @@
               libxtst
               libsysprof-capture
               zenity
+              libglvnd
+
+              # In-app browser (desktop_webview_window, flutter_web_auth_2)
+              # need webkit2gtk-4.1 + libsoup-3.0 at build time. nixpkgs only
+              # ships the 4.1 ABI now, so these must stay in sync with it.
+              # The rest are libsoup-3.0's Requires.private: CMake's FindPkgConfig
+              # resolves those too and warns for each one it cannot find.
+              webkitgtk_4_1
+              libsoup_3
+              libpsl
+              brotli
+              nghttp2
+              sqlite
 
               # Web target
               chromium
