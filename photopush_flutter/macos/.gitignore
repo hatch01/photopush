@@ -1,0 +1,8 @@
+# Flutter-related
+**/Flutter/ephemeral/
+**/Flutter/Flutter-Generated.xcconfig
+**/Pods/
+
+# Xcode-related
+**/dgph
+**/xcuserdata/

@@ -1,87 +1,28 @@
-# Nix / direnv
-.direnv/
-.devenv/
+# Files and directories created by pub
+.dart_tool/
+.packages
+
+# Pubspec overrides
+pubspec_overrides.yaml
+
+# Agents
+.dart_skills/
+.agents/
+.claude/
+.gemini/
+.cursor/
+.vscode/mcp.json
+.codex/
+.mcp.json
+
+# Serverpod Cloud CLI
+.scloud/
+/.direnv
+
+# Nix build results
 result
 result-*
 !flake.lock
 
-# Serverpod CLI installed by the flake shell hook
+# serverpod_cli unpacked into the dev shell by the flake
 .serverpod-cli/
-
-# Env / secrets
-.env
-*.env
-*.local
-
-# Dart / Flutter
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-build/
-pubspec_overrides.yaml
-*.hive
-doc/api/
-
-# Generated code (regenerate with `serverpod generate`)
-**/generated/
-*.g.dart
-*.freezed.dart
-*.mocks.dart
-
-# Serverpod
-serverpod_synchronized/
-config/production/
-*.jks
-*.keystore
-key.properties
-local.properties
-*.p12
-
-# Android
-/android/app/debug/
-/android/app/profile/
-/android/app/release/
-/android/.gradle/
-/android/local.properties
-.cxx/
-
-# iOS / macOS
-ios/Pods/
-ios/.symlinks/
-ios/Flutter/Flutter.podspec
-**/xcuserdata/
-*.xcworkspace/xcuserdata/
-
-# Web
-**/lib/main.dart.js
-**/lib/main.dart.js.map
-**/flutter_service_worker.js
-**/version.json
-**/index.html
-
-# Editors
-.idea/
-*.iml
-*.ipr
-*.iws
-.vscode/*
-!.vscode/settings.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.swp
-*.swo
-*~
-.DS_Store
-.history
-.atom/
-.buildlog/
-.svn/
-
-# Logs / misc
-*.log
-*.class
-*.pyc
-logs/
