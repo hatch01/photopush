@@ -1,0 +1,659 @@
+{
+  "__className__": "serverpod.DatabaseDefinition",
+  "schemaVersion": 2,
+  "moduleName": "photopush",
+  "tables": [
+    {
+      "__className__": "serverpod.TableDefinition",
+      "name": "albums",
+      "dartName": "Album",
+      "module": "photopush",
+      "schema": "public",
+      "columns": [
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "id",
+          "fieldName": "id",
+          "columnType": 7,
+          "isNullable": false,
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "name",
+          "fieldName": "name",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "coverAssetId",
+          "fieldName": "coverAssetId",
+          "columnType": 7,
+          "isNullable": true,
+          "dartType": "UuidValue?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "localRev",
+          "fieldName": "localRev",
+          "columnType": 6,
+          "isNullable": false,
+          "columnDefault": "0",
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "serverRev",
+          "fieldName": "serverRev",
+          "columnType": 6,
+          "isNullable": true,
+          "dartType": "int?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "serverSeq",
+          "fieldName": "serverSeq",
+          "columnType": 6,
+          "isNullable": true,
+          "dartType": "int?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "hlcWall",
+          "fieldName": "hlcWall",
+          "columnType": 6,
+          "isNullable": false,
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "hlcCounter",
+          "fieldName": "hlcCounter",
+          "columnType": 6,
+          "isNullable": false,
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "deviceId",
+          "fieldName": "deviceId",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "deletedAt",
+          "fieldName": "deletedAt",
+          "columnType": 4,
+          "isNullable": true,
+          "dartType": "DateTime?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "pinned",
+          "fieldName": "pinned",
+          "columnType": 6,
+          "isNullable": false,
+          "columnDefault": "0",
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "createdAt",
+          "fieldName": "createdAt",
+          "columnType": 4,
+          "isNullable": false,
+          "dartType": "DateTime"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "updatedAt",
+          "fieldName": "updatedAt",
+          "columnType": 4,
+          "isNullable": false,
+          "dartType": "DateTime"
+        }
+      ],
+      "foreignKeys": [],
+      "indexes": [
+        {
+          "__className__": "serverpod.IndexDefinition",
+          "indexName": "albums_name_idx",
+          "elements": [
+            {
+              "__className__": "serverpod.IndexElementDefinition",
+              "type": 0,
+              "definition": "name"
+            }
+          ],
+          "type": "btree",
+          "isUnique": false,
+          "isPrimary": false
+        }
+      ],
+      "managed": true
+    },
+    {
+      "__className__": "serverpod.TableDefinition",
+      "name": "assets",
+      "dartName": "Asset",
+      "module": "photopush",
+      "schema": "public",
+      "columns": [
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "id",
+          "fieldName": "id",
+          "columnType": 7,
+          "isNullable": false,
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "sha256",
+          "fieldName": "sha256",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "localPath",
+          "fieldName": "localPath",
+          "columnType": 0,
+          "isNullable": true,
+          "dartType": "String?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "remoteUrl",
+          "fieldName": "remoteUrl",
+          "columnType": 0,
+          "isNullable": true,
+          "dartType": "String?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "mimeType",
+          "fieldName": "mimeType",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "byteSize",
+          "fieldName": "byteSize",
+          "columnType": 6,
+          "isNullable": false,
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "width",
+          "fieldName": "width",
+          "columnType": 6,
+          "isNullable": true,
+          "dartType": "int?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "height",
+          "fieldName": "height",
+          "columnType": 6,
+          "isNullable": true,
+          "dartType": "int?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "capturedAt",
+          "fieldName": "capturedAt",
+          "columnType": 4,
+          "isNullable": true,
+          "dartType": "DateTime?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "originalName",
+          "fieldName": "originalName",
+          "columnType": 0,
+          "isNullable": true,
+          "dartType": "String?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "syncState",
+          "fieldName": "syncState",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "createdAt",
+          "fieldName": "createdAt",
+          "columnType": 4,
+          "isNullable": false,
+          "dartType": "DateTime"
+        }
+      ],
+      "foreignKeys": [],
+      "indexes": [
+        {
+          "__className__": "serverpod.IndexDefinition",
+          "indexName": "assets_sha256_idx",
+          "elements": [
+            {
+              "__className__": "serverpod.IndexElementDefinition",
+              "type": 0,
+              "definition": "sha256"
+            }
+          ],
+          "type": "btree",
+          "isUnique": true,
+          "isPrimary": false
+        }
+      ],
+      "managed": true
+    },
+    {
+      "__className__": "serverpod.TableDefinition",
+      "name": "pins",
+      "dartName": "Pin",
+      "module": "photopush",
+      "schema": "public",
+      "columns": [
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "id",
+          "fieldName": "id",
+          "columnType": 7,
+          "isNullable": false,
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "slideId",
+          "fieldName": "slideId",
+          "columnType": 7,
+          "isNullable": false,
+          "dartType": "UuidValue"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "kind",
+          "fieldName": "kind",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "x",
+          "fieldName": "x",
+          "columnType": 3,
+          "isNullable": false,
+          "dartType": "double"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "y",
+          "fieldName": "y",
+          "columnType": 3,
+          "isNullable": false,
+          "dartType": "double"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "sizeScale",
+          "fieldName": "sizeScale",
+          "columnType": 3,
+          "isNullable": false,
+          "columnDefault": "1.0",
+          "dartType": "double"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "color",
+          "fieldName": "color",
+          "columnType": 0,
+          "isNullable": false,
+          "columnDefault": "'black'",
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "text",
+          "fieldName": "text",
+          "columnType": 0,
+          "isNullable": true,
+          "dartType": "String?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "targetSlideId",
+          "fieldName": "targetSlideId",
+          "columnType": 7,
+          "isNullable": true,
+          "dartType": "UuidValue?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "zIndex",
+          "fieldName": "zIndex",
+          "columnType": 6,
+          "isNullable": false,
+          "columnDefault": "0",
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "hlcWall",
+          "fieldName": "hlcWall",
+          "columnType": 6,
+          "isNullable": false,
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "hlcCounter",
+          "fieldName": "hlcCounter",
+          "columnType": 6,
+          "isNullable": false,
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "deviceId",
+          "fieldName": "deviceId",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "serverRev",
+          "fieldName": "serverRev",
+          "columnType": 6,
+          "isNullable": true,
+          "dartType": "int?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "deletedAt",
+          "fieldName": "deletedAt",
+          "columnType": 4,
+          "isNullable": true,
+          "dartType": "DateTime?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "createdAt",
+          "fieldName": "createdAt",
+          "columnType": 4,
+          "isNullable": false,
+          "dartType": "DateTime"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "_slidesPinsSlidesId",
+          "fieldName": "_slidesPinsSlidesId",
+          "columnType": 7,
+          "isNullable": true,
+          "dartType": "UuidValue?"
+        }
+      ],
+      "foreignKeys": [
+        {
+          "__className__": "serverpod.ForeignKeyDefinition",
+          "constraintName": "pins_fk_0",
+          "columns": [
+            "slideId"
+          ],
+          "referenceTable": "slides",
+          "referenceTableSchema": "public",
+          "referenceColumns": [
+            "id"
+          ],
+          "onUpdate": 3,
+          "onDelete": 4
+        },
+        {
+          "__className__": "serverpod.ForeignKeyDefinition",
+          "constraintName": "pins_fk_1",
+          "columns": [
+            "_slidesPinsSlidesId"
+          ],
+          "referenceTable": "slides",
+          "referenceTableSchema": "public",
+          "referenceColumns": [
+            "id"
+          ],
+          "onUpdate": 3,
+          "onDelete": 3
+        }
+      ],
+      "indexes": [],
+      "managed": true
+    },
+    {
+      "__className__": "serverpod.TableDefinition",
+      "name": "slides",
+      "dartName": "Slide",
+      "module": "photopush",
+      "schema": "public",
+      "columns": [
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "id",
+          "fieldName": "id",
+          "columnType": 7,
+          "isNullable": false,
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "albumId",
+          "fieldName": "albumId",
+          "columnType": 7,
+          "isNullable": false,
+          "dartType": "UuidValue"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "kind",
+          "fieldName": "kind",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "title",
+          "fieldName": "title",
+          "columnType": 0,
+          "isNullable": false,
+          "columnDefault": "''",
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "commentText",
+          "fieldName": "commentText",
+          "columnType": 0,
+          "isNullable": true,
+          "dartType": "String?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "assetId",
+          "fieldName": "assetId",
+          "columnType": 7,
+          "isNullable": true,
+          "dartType": "UuidValue?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "orderKey",
+          "fieldName": "orderKey",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "zPinCounter",
+          "fieldName": "zPinCounter",
+          "columnType": 6,
+          "isNullable": false,
+          "columnDefault": "0",
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "dirty",
+          "fieldName": "dirty",
+          "columnType": 6,
+          "isNullable": false,
+          "columnDefault": "0",
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "hlcWall",
+          "fieldName": "hlcWall",
+          "columnType": 6,
+          "isNullable": false,
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "hlcCounter",
+          "fieldName": "hlcCounter",
+          "columnType": 6,
+          "isNullable": false,
+          "dartType": "int"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "deviceId",
+          "fieldName": "deviceId",
+          "columnType": 0,
+          "isNullable": false,
+          "dartType": "String"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "serverRev",
+          "fieldName": "serverRev",
+          "columnType": 6,
+          "isNullable": true,
+          "dartType": "int?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "deletedAt",
+          "fieldName": "deletedAt",
+          "columnType": 4,
+          "isNullable": true,
+          "dartType": "DateTime?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "createdAt",
+          "fieldName": "createdAt",
+          "columnType": 4,
+          "isNullable": false,
+          "dartType": "DateTime"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "updatedAt",
+          "fieldName": "updatedAt",
+          "columnType": 4,
+          "isNullable": false,
+          "dartType": "DateTime"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "_albumsSlidesAlbumsId",
+          "fieldName": "_albumsSlidesAlbumsId",
+          "columnType": 7,
+          "isNullable": true,
+          "dartType": "UuidValue?"
+        }
+      ],
+      "foreignKeys": [
+        {
+          "__className__": "serverpod.ForeignKeyDefinition",
+          "constraintName": "slides_fk_0",
+          "columns": [
+            "albumId"
+          ],
+          "referenceTable": "albums",
+          "referenceTableSchema": "public",
+          "referenceColumns": [
+            "id"
+          ],
+          "onUpdate": 3,
+          "onDelete": 4
+        },
+        {
+          "__className__": "serverpod.ForeignKeyDefinition",
+          "constraintName": "slides_fk_1",
+          "columns": [
+            "assetId"
+          ],
+          "referenceTable": "assets",
+          "referenceTableSchema": "public",
+          "referenceColumns": [
+            "id"
+          ],
+          "onUpdate": 3,
+          "onDelete": 3
+        },
+        {
+          "__className__": "serverpod.ForeignKeyDefinition",
+          "constraintName": "slides_fk_2",
+          "columns": [
+            "_albumsSlidesAlbumsId"
+          ],
+          "referenceTable": "albums",
+          "referenceTableSchema": "public",
+          "referenceColumns": [
+            "id"
+          ],
+          "onUpdate": 3,
+          "onDelete": 3
+        }
+      ],
+      "indexes": [],
+      "managed": true
+    }
+  ],
+  "installedModules": [
+    {
+      "__className__": "serverpod.DatabaseMigrationVersion",
+      "module": "serverpod",
+      "version": "20260824182259319"
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationVersion",
+      "module": "serverpod_auth_idp",
+      "version": "20260924105404509"
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationVersion",
+      "module": "serverpod_auth_core",
+      "version": "20260924105232991"
+    }
+  ],
+  "migrationApiVersion": 1
+}
