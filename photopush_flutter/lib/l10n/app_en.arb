@@ -1,4 +1,12 @@
 {
   "appTitle": "Photo Push",
-  "emptyAlbumListHelp": "Tap on + button to create a slides album including photos and comments.\nNote that you can add pins on photos to create pop-up comments or slide links."
+  "emptyAlbumListHelp": "Tap on + button to create a slides album including photos and comments.\nNote that you can add pins on photos to create pop-up comments or slide links.",
+  "createAlbumTitle": "New album",
+  "albumNameLabel": "Album name",
+  "albumNameEmptyError": "Name cannot be empty",
+  "albumNameInvalidCharactersError": "Name contains invalid characters",
+  "albumNameExistsError": "An album with the same name already exists.",
+  "cancel": "Cancel",
+  "create": "Create",
+  "ok": "OK"
 }

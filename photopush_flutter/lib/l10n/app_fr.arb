@@ -1,10 +1,12 @@
 {
   "appTitle": "Photo Push",
-  "@appTitle": {
-    "description": "Le titre de l'application"
-  },
   "emptyAlbumListHelp": "Appuyez sur le bouton + pour créer un album de diapositives comprenant des photos et des commentaires.\nNotez que vous pouvez ajouter des punaises sur les photos pour créer des commentaires sous forme de bulles ou des liens vers des diapositives.",
-  "@emptyAlbumListHelp": {
-    "description": "Texte d'accueil quand la liste d'albums est vide"
-  }
+  "createAlbumTitle": "Nouvel album",
+  "albumNameLabel": "Nom de l'album",
+  "albumNameEmptyError": "Le nom ne peut pas être vide",
+  "albumNameInvalidCharactersError": "Le nom contient des caractères interdits",
+  "albumNameExistsError": "Un album portant ce nom existe déjà.",
+  "cancel": "Annuler",
+  "create": "Créer",
+  "ok": "OK"
 }

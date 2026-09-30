@@ -3,12 +3,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 
 import 'client.dart';
-import 'screens/album_list_screen.dart';
+import 'features/albums/album_list_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeClient();
-  runApp(const PhotoPushApp());
+  runApp(const ProviderScope(child: PhotoPushApp()));
 }
 
 ThemeData _buildTheme(Brightness brightness) {
