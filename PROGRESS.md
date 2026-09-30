@@ -10,7 +10,7 @@
 
 ## Phase 1 — Fonctionnel local (En cours)
 - [ ] **Écran 1 & 2 : Albums**
-  - [ ] Création (validation, unicité du nom, UUID interne).
+  - [x] Création (validation, unicité du nom, UUID interne).
   - [ ] Renommage, corbeille et restauration, calcul de couverture.
 - [ ] **Diapositives & Punaises & Médias**
   - [ ] À implémenter ensuite.
