@@ -62,3 +62,4 @@ serverpod:
       displayName: "Photopush app"
       auto_launch: true
       target: lib/driver.dart
+      device: linux
