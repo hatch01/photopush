@@ -8,6 +8,15 @@
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
+
+    nixpkgs-patcher.url = "github:gepbird/nixpkgs-patcher";
+
+    # serverpod_cli 3.4.13 -> 4.0.3, not in nixpkgs-unstable yet.
+    # Pinned to the commit so the patch never changes under our feet.
+    nixpkgs-patch-serverpod-cli-bump = {
+      url = "https://github.com/NixOS/nixpkgs/commit/10c3b3443933fd84f9832fd03308a3f4ad7789ba.diff";
+      flake = false;
+    };
   };
 
   nixConfig = {
@@ -31,14 +40,19 @@
       ];
       perSystem =
         {
-          pkgs,
           system,
           lib,
           ...
         }:
         let
-          # Re-import nixpkgs with the config required for the Android SDK.
-          pkgs = import nixpkgs {
+          # Re-import the patched nixpkgs with the config required for the
+          # Android SDK.
+          nixpkgsPatched = inputs.nixpkgs-patcher.lib.patchNixpkgs {
+            inherit inputs system;
+            inherit (inputs) nixpkgs;
+          };
+
+          pkgs = import nixpkgsPatched {
             inherit system;
             config = {
               allowUnfree = true;
@@ -73,10 +87,6 @@
           androidSdk = androidComposition.androidsdk;
           androidSdkPath = "${androidSdk}/libexec/android-sdk";
           PWD = builtins.getEnv "PWD";
-
-          # Keep Serverpod CLI out of the Nix store and pin it for reproducibility.
-          serverpodVersion = "4.0.3";
-          serverpodHome = ".serverpod-cli";
         in
         {
           devShells.default = pkgs.mkShell {
@@ -90,6 +100,7 @@
               just
               protobuf
               protoc-gen-dart
+              serverpod_cli
 
               # Serverpod runtime dependencies
               postgresql_18
@@ -147,18 +158,6 @@
             GRADLE_OPTS = ''
               -Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdkPath}/build-tools/34.0.0/aapt2
               -Djava.net.preferIPv4Stack=true
-            '';
-
-            shellHook = ''
-              # Serverpod CLI is not packaged in nixpkgs. It is installed on
-              # first shell load into a project-local PUB_CACHE so it never
-              # collides with a global install or the project's own cache.
-              if [ ! -x "${serverpodHome}/bin/serverpod" ]; then
-                echo "serverpod: installing CLI ${serverpodVersion} (first run only)..." >&2
-                PUB_CACHE="${serverpodHome}" dart pub global activate \
-                  serverpod_cli "${serverpodVersion}" >&2
-              fi
-              export PATH="${serverpodHome}/bin:$PATH"
             '';
           };
 
