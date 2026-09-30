@@ -87,6 +87,37 @@
           androidSdk = androidComposition.androidsdk;
           androidSdkPath = "${androidSdk}/libexec/android-sdk";
           PWD = builtins.getEnv "PWD";
+
+          # A view of the SDK that is identical to `pkgs.flutter` except that
+          # packages/flutter_tools/.dart_tool is not linked in.
+          #
+          # `serverpod start` never execs the `flutter` wrapper. It reads
+          # `flutterRoot` from `flutter --version --machine` and then spawns dart
+          # directly on $FLUTTER_ROOT/packages/flutter_tools/bin/flutter_tools.dart.
+          # That entrypoint is the *vanilla* SDK source: nixpkgs only strips the
+          # artifact download out of the compiled flutter_tools.snapshot
+          # (see flutter-tools.nix postPatch), so running the .dart source makes
+          # the tool try to fetch engine_stamp.json into the read-only store.
+          # Hiding .dart_tool trips the existence check in
+          # serverpod_cli's flutter_process.dart and sends it down the supported
+          # fallback, which execs the wrapper and uses the patched snapshot.
+          flutterSdk = pkgs.runCommand "flutter-sdk" { } ''
+            mkdir -p "$out"
+
+            for entry in ${pkgs.flutter}/*; do
+              [ "$(basename "$entry")" = packages ] || ln -s "$entry" "$out/$(basename "$entry")"
+            done
+
+            mkdir -p "$out/packages"
+            for entry in ${pkgs.flutter}/packages/*; do
+              [ "$(basename "$entry")" = flutter_tools ] || ln -s "$entry" "$out/packages/$(basename "$entry")"
+            done
+
+            mkdir -p "$out/packages/flutter_tools"
+            for entry in ${pkgs.flutter}/packages/flutter_tools/*; do
+              ln -s "$entry" "$out/packages/flutter_tools/$(basename "$entry")"
+            done
+          '';
         in
         {
           devShells.default = pkgs.mkShell {
@@ -161,7 +192,17 @@
             ];
 
             CHROME_EXECUTABLE = lib.getExe pkgs.chromium;
-            FLUTTER_SDK = "${pkgs.flutter}";
+            FLUTTER_SDK = "${flutterSdk}";
+            FLUTTER_ROOT = "${flutterSdk}";
+
+            # The nixpkgs SDK is immutable, so there is no cache to guard.
+            # bin/flutter exports this itself, but `serverpod start` does not go
+            # through that wrapper: it reads `flutterRoot` from
+            # `flutter --version --machine` and then spawns dart directly on
+            # flutter_tools.dart. Without this it tries to create
+            # $FLUTTER_ROOT/bin/cache/lockfile in the read-only store and dies
+            # with "Failed to open or create the artifact cache lockfile".
+            FLUTTER_ALREADY_LOCKED = "true";
 
             ANDROID_HOME = androidSdkPath;
             ANDROID_SDK_ROOT = androidSdkPath;
