@@ -30,9 +30,10 @@ class SlideViewerScreen extends ConsumerWidget {
             onPressed: () async {
               final choice = await AddSlideSheet.show(context);
               if (choice != null && context.mounted) {
-                final slides = ref.read(albumSlidesProvider(album.id)).value ?? [];
-                final String orderKey = slides.isEmpty 
-                    ? OrderKey.generateFirst() 
+                final slides =
+                    ref.read(albumSlidesProvider(album.id)).value ?? [];
+                final String orderKey = slides.isEmpty
+                    ? OrderKey.generateFirst()
                     : OrderKey.generateNext(slides.last.orderKey);
 
                 if (choice == SlideChoice.comment) {
@@ -46,23 +47,30 @@ class SlideViewerScreen extends ConsumerWidget {
                   );
                 } else if (choice == SlideChoice.photo) {
                   final picker = ImagePicker();
-                  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-                  
+                  final pickedFile = await picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
+
                   if (pickedFile != null && context.mounted) {
                     // Show a simple loading indicator while processing
                     showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder: (context) => const Center(child: CircularProgressIndicator()),
+                      builder: (context) =>
+                          const Center(child: CircularProgressIndicator()),
                     );
 
                     try {
                       final mediaService = ref.read(mediaServiceProvider);
                       final asset = await mediaService.importMedia(pickedFile);
-                      
+
                       final slideRepo = ref.read(slideRepositoryProvider);
-                      await slideRepo.createPhotoSlide(album.id, asset.id, orderKey);
-                      
+                      await slideRepo.createPhotoSlide(
+                        album.id,
+                        asset.id,
+                        orderKey,
+                      );
+
                       ref.invalidate(albumSlidesProvider(album.id));
                     } finally {
                       if (context.mounted) {
@@ -99,7 +107,9 @@ class SlideViewerScreen extends ConsumerWidget {
                 leading: slide.kind == 'photo' && slide.assetId != null
                     ? AssetThumbnail(assetId: slide.assetId!)
                     : Icon(slide.kind == 'comment' ? Icons.notes : Icons.photo),
-                title: Text(slide.title.isEmpty ? l10n.untitledSlide : slide.title),
+                title: Text(
+                  slide.title.isEmpty ? l10n.untitledSlide : slide.title,
+                ),
                 subtitle: Text(
                   slide.kind == 'comment' ? (slide.commentText ?? '') : 'Photo',
                   maxLines: 1,

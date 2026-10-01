@@ -49,7 +49,11 @@ class SlideRepository {
     return Slide.db.insertRow(session, slide);
   }
 
-  Future<Slide> createPhotoSlide(UuidValue albumId, UuidValue assetId, String orderKey) async {
+  Future<Slide> createPhotoSlide(
+    UuidValue albumId,
+    UuidValue assetId,
+    String orderKey,
+  ) async {
     final slide = Slide(
       id: Uuid().v7obj(),
       albumId: albumId,
@@ -62,7 +66,7 @@ class SlideRepository {
       deviceId: 'TODO_LOCAL_DEVICE_ID',
       dirty: 1,
     );
-    
+
     final inserted = await Slide.db.insertRow(session, slide);
 
     // Update album cover if it has none
@@ -71,7 +75,7 @@ class SlideRepository {
       album = album.copyWith(coverAssetId: assetId);
       await Album.db.updateRow(session, album);
     }
-    
+
     return inserted;
   }
 
