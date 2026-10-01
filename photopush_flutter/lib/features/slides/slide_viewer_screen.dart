@@ -1,11 +1,11 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photopush_client/photopush_client.dart';
 import '../../l10n/app_localizations.dart';
+import '../albums/album_repository.dart';
 import 'slide_repository.dart';
-import 'add_slide_sheet.dart';
-import 'comment_editor_screen.dart';
 import 'media_service.dart';
 import 'asset_thumbnail.dart';
 import 'fullscreen_slide_viewer.dart';
@@ -15,6 +15,41 @@ class SlideViewerScreen extends ConsumerWidget {
   final Album album;
 
   const SlideViewerScreen({super.key, required this.album});
+
+  Future<void> _addPhoto(BuildContext context, WidgetRef ref) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null && context.mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      try {
+        final slides = ref.read(albumSlidesProvider(album.id)).value ?? [];
+        final String orderKey = slides.isEmpty
+            ? OrderKey.generateFirst()
+            : OrderKey.generateNext(slides.last.orderKey);
+
+        final mediaService = ref.read(mediaServiceProvider);
+        final asset = await mediaService.importMedia(pickedFile);
+
+        final slideRepo = ref.read(slideRepositoryProvider);
+        await slideRepo.createPhotoSlide(album.id, asset.id, orderKey);
+
+        ref.invalidate(albumSlidesProvider(album.id));
+        ref.invalidate(albumListProvider);
+      } finally {
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,121 +61,81 @@ class SlideViewerScreen extends ConsumerWidget {
         title: Text(album.name),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () async {
-              final choice = await AddSlideSheet.show(context);
-              if (choice != null && context.mounted) {
-                final slides =
-                    ref.read(albumSlidesProvider(album.id)).value ?? [];
-                final String orderKey = slides.isEmpty
-                    ? OrderKey.generateFirst()
-                    : OrderKey.generateNext(slides.last.orderKey);
-
-                if (choice == SlideChoice.comment) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => CommentEditorScreen(
-                        album: album,
-                        orderKey: orderKey,
-                      ),
-                    ),
-                  );
-                } else if (choice == SlideChoice.photo) {
-                  final picker = ImagePicker();
-                  final pickedFile = await picker.pickImage(
-                    source: ImageSource.gallery,
-                  );
-
-                  if (pickedFile != null && context.mounted) {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-
-                    try {
-                      final mediaService = ref.read(mediaServiceProvider);
-                      final asset = await mediaService.importMedia(pickedFile);
-
-                      final slideRepo = ref.read(slideRepositoryProvider);
-                      await slideRepo.createPhotoSlide(
-                        album.id,
-                        asset.id,
-                        orderKey,
-                      );
-
-                      ref.invalidate(albumSlidesProvider(album.id));
-                    } finally {
-                      if (context.mounted) {
-                        Navigator.of(context).pop();
-                      }
-                    }
-                  }
-                }
-              }
-            },
+            icon: const Icon(Icons.add_photo_alternate_outlined),
+            tooltip: l10n.addPhotoSlide,
+            onPressed: () => _addPhoto(context, ref),
           ),
         ],
       ),
       body: slidesAsync.when(
         data: (slides) {
-          if (slides.isEmpty) {
+          final photoSlides = slides
+              .where((s) => s.kind == 'photo' && s.assetId != null)
+              .toList();
+
+          if (photoSlides.isEmpty) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
-                child: Text(
-                  l10n.emptyAlbumHelp,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.photo_library_outlined,
+                      size: 64,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.emptyAlbumHelp,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: () => _addPhoto(context, ref),
+                      icon: const Icon(Icons.add_a_photo),
+                      label: Text(l10n.addPhotoSlide),
+                    ),
+                  ],
                 ),
               ),
             );
           }
 
           return GridView.builder(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 8.0,
-              mainAxisSpacing: 8.0,
+              crossAxisSpacing: 4.0,
+              mainAxisSpacing: 4.0,
             ),
-            itemCount: slides.length,
+            itemCount: photoSlides.length,
             itemBuilder: (context, index) {
-              final slide = slides[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => FullscreenSlideViewer(
-                        album: album,
-                        initialIndex: index,
-                      ),
+              final slide = photoSlides[index];
+
+              return OpenContainer(
+                closedElevation: 0,
+                closedColor: Colors.transparent,
+                openElevation: 0,
+                openColor: Colors.black,
+                closedShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                openBuilder: (context, _) => FullscreenSlideViewer(
+                  album: album,
+                  initialIndex: index,
+                ),
+                closedBuilder: (context, openContainer) => InkWell(
+                  onTap: openContainer,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4.0),
+                    child: AssetThumbnail(
+                      assetId: slide.assetId!,
+                      width: double.infinity,
+                      height: double.infinity,
                     ),
-                  );
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: slide.kind == 'photo' && slide.assetId != null
-                      ? AssetThumbnail(
-                          assetId: slide.assetId!,
-                          width: double.infinity,
-                          height: double.infinity,
-                        )
-                      : Container(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          child: Center(
-                            child: Icon(
-                              slide.kind == 'comment'
-                                  ? Icons.notes
-                                  : Icons.photo,
-                              size: 32,
-                            ),
-                          ),
-                        ),
+                  ),
                 ),
               );
             },

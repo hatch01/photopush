@@ -5,7 +5,7 @@ import 'create_album_sheet.dart';
 import 'album_repository.dart';
 import 'trash_screen.dart';
 import '../slides/slide_viewer_screen.dart';
-import '../slides/asset_thumbnail.dart';
+import 'album_cover_mosaic.dart';
 
 import 'package:animations/animations.dart';
 import 'package:photopush_client/photopush_client.dart';
@@ -165,18 +165,10 @@ class AlbumListScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(
-                        child: album.coverAssetId != null
-                            ? AssetThumbnail(
-                                assetId: album.coverAssetId!,
-                                width: double.infinity,
-                                height: double.infinity,
-                              )
-                            : Container(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.surfaceContainerHighest,
-                                child: const Icon(Icons.album, size: 50),
-                              ),
+                        child: AlbumCoverMosaic(
+                          albumId: album.id,
+                          fallbackCoverAssetId: album.coverAssetId,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),

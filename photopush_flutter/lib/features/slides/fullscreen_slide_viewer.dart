@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photopush_client/photopush_client.dart';
 import 'slide_repository.dart';
 import 'photo_slide_viewer.dart';
-import 'comment_slide_viewer.dart';
 
 class FullscreenSlideViewer extends ConsumerStatefulWidget {
   final Album album;
@@ -47,40 +46,33 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
     final slidesAsync = ref.watch(albumSlidesProvider(widget.album.id));
 
     return Scaffold(
+      backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
       appBar: _immersiveMode
           ? null
           : AppBar(
               title: Text(widget.album.name),
-              backgroundColor:
-                  Theme.of(
-                    context,
-                  ).appBarTheme.backgroundColor?.withValues(alpha: 0.8) ??
-                  Colors.black.withValues(alpha: 0.8),
+              backgroundColor: Colors.black.withValues(alpha: 0.7),
               foregroundColor: Colors.white,
               elevation: 0,
             ),
       body: slidesAsync.when(
         data: (slides) {
-          if (slides.isEmpty) return const SizedBox.shrink();
+          final photoSlides = slides
+              .where((s) => s.kind == 'photo' && s.assetId != null)
+              .toList();
+
+          if (photoSlides.isEmpty) return const SizedBox.shrink();
 
           return PageView.builder(
             controller: _pageController,
-            itemCount: slides.length,
+            itemCount: photoSlides.length,
             itemBuilder: (context, index) {
-              final slide = slides[index];
-              if (slide.kind == 'photo') {
-                return PhotoSlideViewer(
-                  slide: slide,
-                  onTap: _toggleImmersive,
-                );
-              } else {
-                return CommentSlideViewer(
-                  slide: slide,
-                  onTap: _toggleImmersive,
-                  isImmersive: _immersiveMode,
-                );
-              }
+              final slide = photoSlides[index];
+              return PhotoSlideViewer(
+                slide: slide,
+                onTap: _toggleImmersive,
+              );
             },
           );
         },
