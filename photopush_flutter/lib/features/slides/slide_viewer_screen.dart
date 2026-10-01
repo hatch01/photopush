@@ -109,6 +109,15 @@ class _SlideViewerScreenState extends ConsumerState<SlideViewerScreen> {
                             ref.invalidate(
                               albumSlidesProvider(widget.album.id),
                             );
+
+                            // We need to wait for the provider to update, then jump to the newly added slide.
+                            // A simple way is to post a frame callback.
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (_pageController.hasClients) {
+                                // Assume it's appended at the end
+                                _pageController.jumpToPage(slides.length);
+                              }
+                            });
                           } finally {
                             if (context.mounted) {
                               Navigator.of(context).pop();
