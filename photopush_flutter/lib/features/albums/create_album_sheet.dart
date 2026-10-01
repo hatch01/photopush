@@ -99,10 +99,11 @@ class _CreateAlbumSheetState extends State<CreateAlbumSheet> {
                 border: const OutlineInputBorder(),
               ),
               onChanged: (_) {
-                if (_error != null)
+                if (_error != null) {
                   setState(() {
                     _error = null;
                   });
+                }
               },
             ),
             const SizedBox(height: 16),
