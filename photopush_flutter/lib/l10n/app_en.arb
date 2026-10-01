@@ -38,10 +38,6 @@
   "linkedPhoto": "Linked photo",
   "change": "Change",
   "reorganizeAlbum": "Reorganize album",
-  "exportAlbum": "Export album (.photopush)",
-  "importAlbum": "Import album (.photopush)",
-  "exportSuccess": "Album exported successfully",
-  "importSuccess": "Album imported successfully",
   "deleteSlideConfirm": "Do you really want to delete this slide?",
   "pinCount": "{count, plural, =0{0 pins} =1{1 pin} other{{count} pins}}",
   "@pinCount": {
@@ -50,6 +46,32 @@
       "count": {
         "type": "int"
       }
+    }
+  },
+  "pinSemanticNeutral": "{color} pin",
+  "@pinSemanticNeutral": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+  "pinSemanticText": "{color} pin with comment: {text}",
+  "@pinSemanticText": {
+    "placeholders": {
+      "color": { "type": "String" },
+      "text": { "type": "String" }
+    }
+  },
+  "pinSemanticLink": "{color} pin with link to slide",
+  "@pinSemanticLink": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+  "pinSemanticTextLink": "{color} pin with comment and link: {text}",
+  "@pinSemanticTextLink": {
+    "placeholders": {
+      "color": { "type": "String" },
+      "text": { "type": "String" }
     }
   }
 }

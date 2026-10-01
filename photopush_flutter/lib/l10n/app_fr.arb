@@ -38,10 +38,6 @@
   "linkedPhoto": "Photo liée",
   "change": "Changer",
   "reorganizeAlbum": "Réorganiser l'album",
-  "exportAlbum": "Exporter l'album (.photopush)",
-  "importAlbum": "Importer un album (.photopush)",
-  "exportSuccess": "Album exporté avec succès",
-  "importSuccess": "Album importé avec succès",
   "deleteSlideConfirm": "Voulez-vous supprimer cette diapositive ?",
   "pinCount": "{count, plural, =0{0 punaise} =1{1 punaise} other{{count} punaises}}",
   "@pinCount": {
@@ -50,6 +46,32 @@
       "count": {
         "type": "int"
       }
+    }
+  },
+  "pinSemanticNeutral": "Punaise {color}",
+  "@pinSemanticNeutral": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+  "pinSemanticText": "Punaise {color} avec commentaire : {text}",
+  "@pinSemanticText": {
+    "placeholders": {
+      "color": { "type": "String" },
+      "text": { "type": "String" }
+    }
+  },
+  "pinSemanticLink": "Punaise {color} avec lien vers diapositive",
+  "@pinSemanticLink": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+  "pinSemanticTextLink": "Punaise {color} avec commentaire et lien : {text}",
+  "@pinSemanticTextLink": {
+    "placeholders": {
+      "color": { "type": "String" },
+      "text": { "type": "String" }
     }
   }
 }

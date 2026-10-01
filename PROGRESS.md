@@ -32,7 +32,7 @@
 
 ## Phase 2 — Publication du cœur (En cours)
 - [x] Tests unitaires automatisés complets (OrderKey, géométrie des punaises, limites métier, codec d'archive).
-- [ ] Audit d'accessibilité (contraste, cibles tactiles >= 48dp) et polices agrandies.
+- [x] Audit d'accessibilité (contraste, cibles tactiles >= 48dp, Semantics complets et polices agrandies 200%).
 - [ ] Préparation du build release Android / iOS.
 
 ## Phase 3 — Serveur (Optionnel P1 - À faire)
