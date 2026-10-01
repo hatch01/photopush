@@ -76,7 +76,9 @@ class AlbumListScreen extends ConsumerWidget {
                         if (existing != null) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.albumNameExistsError)),
+                              SnackBar(
+                                content: Text(l10n.albumNameExistsError),
+                              ),
                             );
                           }
                           return;
@@ -130,7 +132,7 @@ class AlbumListScreen extends ConsumerWidget {
           final name = await CreateAlbumSheet.show(context);
           if (name != null) {
             final repo = ref.read(albumRepositoryProvider);
-            
+
             // Check uniqueness
             final existing = await repo.findByName(name);
             if (existing != null) {

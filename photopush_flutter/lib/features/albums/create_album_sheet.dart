@@ -43,13 +43,26 @@ class _CreateAlbumSheetState extends State<CreateAlbumSheet> {
   void _validateAndSubmit(AppLocalizations l10n) {
     final name = _controller.text.trim();
     if (name.isEmpty) {
-      setState(() { _error = l10n.albumNameEmptyError; });
+      setState(() {
+        _error = l10n.albumNameEmptyError;
+      });
       return;
     }
 
-    final hasInvalid = name.contains('/') || name.contains(':') || name.contains('*') || name.contains('?') || name.contains('"') || name.contains('<') || name.contains('>') || name.contains('|') || name.contains('\\');
+    final hasInvalid =
+        name.contains('/') ||
+        name.contains(':') ||
+        name.contains('*') ||
+        name.contains('?') ||
+        name.contains('"') ||
+        name.contains('<') ||
+        name.contains('>') ||
+        name.contains('|') ||
+        name.contains('\\');
     if (hasInvalid) {
-      setState(() { _error = l10n.albumNameInvalidCharactersError; });
+      setState(() {
+        _error = l10n.albumNameInvalidCharactersError;
+      });
       return;
     }
 
@@ -60,7 +73,7 @@ class _CreateAlbumSheetState extends State<CreateAlbumSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isRename = widget.initialName != null;
-    
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -86,7 +99,10 @@ class _CreateAlbumSheetState extends State<CreateAlbumSheet> {
                 border: const OutlineInputBorder(),
               ),
               onChanged: (_) {
-                if (_error != null) setState(() { _error = null; });
+                if (_error != null)
+                  setState(() {
+                    _error = null;
+                  });
               },
             ),
             const SizedBox(height: 16),
