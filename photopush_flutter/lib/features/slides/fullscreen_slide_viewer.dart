@@ -103,8 +103,9 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
                   _isEditing = !_isEditing;
                 });
               },
-              backgroundColor:
-                  _isEditing ? Theme.of(context).colorScheme.error : null,
+              backgroundColor: _isEditing
+                  ? Theme.of(context).colorScheme.error
+                  : null,
               child: Icon(_isEditing ? Icons.close : Icons.edit),
             ),
     );

@@ -7,7 +7,10 @@ final pinRepositoryProvider = Provider<PinRepository>((ref) {
   return PinRepository(dbSession);
 });
 
-final slidePinsProvider = FutureProvider.family<List<Pin>, UuidValue>((ref, slideId) async {
+final slidePinsProvider = FutureProvider.family<List<Pin>, UuidValue>((
+  ref,
+  slideId,
+) async {
   final repo = ref.watch(pinRepositoryProvider);
   return repo.listBySlide(slideId);
 });
@@ -21,7 +24,8 @@ class PinRepository {
     return Pin.db.find(
       session,
       where: (t) => t.slideId.equals(slideId) & t.deletedAt.equals(null),
-      orderBy: (t) => t.zIndex, // Important to render them in the correct Z order
+      orderBy: (t) =>
+          t.zIndex, // Important to render them in the correct Z order
     );
   }
 

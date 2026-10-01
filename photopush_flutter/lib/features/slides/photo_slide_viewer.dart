@@ -86,7 +86,9 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
   }
 
   void _handleDoubleTap() {
-    if (widget.isEditing) return; // Disable double-tap zoom while in pin edit mode
+    if (widget.isEditing) {
+      return; // Disable double-tap zoom while in pin edit mode
+    }
 
     final currentMatrix = _transformationController.value;
     final currentScale = currentMatrix.getMaxScaleOnAxis();
@@ -105,13 +107,16 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
         ..storage[13] = y;
     }
 
-    _animation = Matrix4Tween(
-      begin: currentMatrix,
-      end: targetMatrix,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _animation =
+        Matrix4Tween(
+          begin: currentMatrix,
+          end: targetMatrix,
+        ).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     void listener() {
       if (_animation != null) {
@@ -173,12 +178,15 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
             }
 
             final renderBox = context.findRenderObject() as RenderBox;
-            final localPosition =
-                renderBox.globalToLocal(details.globalPosition);
+            final localPosition = renderBox.globalToLocal(
+              details.globalPosition,
+            );
 
             final x = (localPosition.dx / renderBox.size.width).clamp(0.0, 1.0);
-            final y =
-                (localPosition.dy / renderBox.size.height).clamp(0.0, 1.0);
+            final y = (localPosition.dy / renderBox.size.height).clamp(
+              0.0,
+              1.0,
+            );
 
             final pinRepo = ref.read(pinRepositoryProvider);
             await pinRepo.create(
@@ -240,8 +248,9 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
                               pin: pin,
                               onTap: () async {
                                 if (widget.isEditing) {
-                                  final pinRepo =
-                                      ref.read(pinRepositoryProvider);
+                                  final pinRepo = ref.read(
+                                    pinRepositoryProvider,
+                                  );
                                   await pinRepo.moveToTrash(pin.id);
                                   ref.invalidate(
                                     slidePinsProvider(widget.slide.id),
