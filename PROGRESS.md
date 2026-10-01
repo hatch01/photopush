@@ -30,10 +30,10 @@
   - [x] Sauvegarde automatique en base SQLite locale.
   - [x] Export / Import d'archive `.photopush` (ZIP `album.json` + `media/*`).
 
-## Phase 2 — Publication du cœur (À faire)
-- [ ] Tests automatisés complets & recette "mode avion" (O-01 -> O-06).
+## Phase 2 — Publication du cœur (En cours)
+- [x] Tests unitaires automatisés complets (OrderKey, géométrie des punaises, limites métier, codec d'archive).
 - [ ] Audit d'accessibilité (contraste, cibles tactiles >= 48dp) et polices agrandies.
-- [ ] Build release Android / iOS.
+- [ ] Préparation du build release Android / iOS.
 
 ## Phase 3 — Serveur (Optionnel P1 - À faire)
 - [ ] API REST (auth, CRUD, sync/push, sync/changes).
