@@ -45,6 +45,9 @@ dependencies:
   crypto: ^3.0.7
   uuid: ^4.6.0
   animations: ^2.2.0
+  archive: ^4.3.0
+  file_selector: ^1.1.0
+  share_plus: ^13.3.0
 
 dev_dependencies:
   # Used for agents to drive the app through the Dart MCP

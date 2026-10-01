@@ -1,15 +1,20 @@
+import 'dart:io';
 import 'package:animations/animations.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photopush_client/photopush_client.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../l10n/app_localizations.dart';
 import 'create_album_sheet.dart';
 import 'album_repository.dart';
 import 'trash_screen.dart';
 import '../slides/slide_viewer_screen.dart';
 import 'album_cover_mosaic.dart';
+import '../archive/archive_service.dart';
 
-enum _AlbumListMenu { trash }
+enum _AlbumListMenu { trash, importArchive }
 
 class AlbumListScreen extends ConsumerStatefulWidget {
   const AlbumListScreen({super.key});
@@ -78,6 +83,69 @@ class _AlbumListScreenState extends ConsumerState<AlbumListScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.share),
+              title: Text(l10n.exportAlbum),
+              onTap: () async {
+                Navigator.pop(context);
+                try {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+
+                  final archiveService = ref.read(archiveServiceProvider);
+                  final exportedFile =
+                      await archiveService.exportAlbum(album.id);
+
+                  if (context.mounted) {
+                    Navigator.of(context).pop(); // close loader
+                  }
+
+                  if (!kIsWeb &&
+                      (Platform.isLinux ||
+                          Platform.isMacOS ||
+                          Platform.isWindows)) {
+                    final safeName = album.name
+                        .replaceAll(RegExp(r'[\\/:*?"<>| ]'), '_');
+                    final location = await getSaveLocation(
+                      suggestedName: '$safeName.photopush',
+                      acceptedTypeGroups: [
+                        const XTypeGroup(
+                          label: 'PhotoPush Archive',
+                          extensions: ['photopush'],
+                        ),
+                      ],
+                    );
+
+                    if (location != null) {
+                      await exportedFile.copy(location.path);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.exportSuccess)),
+                        );
+                      }
+                    }
+                  } else {
+                    await SharePlus.instance.share(
+                      ShareParams(
+                        files: [XFile(exportedFile.path)],
+                        text: 'Album: ${album.name}',
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Export error: $e')),
+                    );
+                  }
+                }
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: Text(
                 l10n.moveToTrash,
@@ -95,6 +163,55 @@ class _AlbumListScreenState extends ConsumerState<AlbumListScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _importArchive(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    try {
+      const typeGroup = XTypeGroup(
+        label: 'PhotoPush Archive',
+        extensions: ['photopush'],
+      );
+      final file = await openFile(acceptedTypeGroups: [typeGroup]);
+      if (file == null) return;
+
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+
+      final archiveService = ref.read(archiveServiceProvider);
+      final newAlbum = await archiveService.importAlbum(File(file.path));
+
+      if (context.mounted) {
+        Navigator.of(context).pop(); // Close loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.importSuccess)),
+        );
+      }
+
+      ref.invalidate(albumListProvider);
+
+      if (newAlbum != null && mounted) {
+        setState(() {
+          _newlyCreatedAlbumId = newAlbum.id;
+        });
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context).pop(); // Close loading if open
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Import error: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -116,9 +233,15 @@ class _AlbumListScreenState extends ConsumerState<AlbumListScreen> {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const TrashScreen()),
                 );
+              } else if (value == _AlbumListMenu.importArchive) {
+                _importArchive(context, l10n);
               }
             },
             itemBuilder: (context) => [
+              PopupMenuItem(
+                value: _AlbumListMenu.importArchive,
+                child: Text(l10n.importAlbum),
+              ),
               PopupMenuItem(
                 value: _AlbumListMenu.trash,
                 child: Text(l10n.trash),

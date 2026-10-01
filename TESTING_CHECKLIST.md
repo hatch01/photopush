@@ -95,6 +95,20 @@ Ce document recense l'ensemble des fonctionnalités actuellement implémentées 
 
 ---
 
-## 💾 6. Données & Mode Hors Ligne
+## 📦 7. Export & Import d'archive `.photopush` (Portabilité)
+- [ ] **Exporter un album** :
+  - Sur la liste des albums, ouvrez le menu contextuel `...` d'un album et choisissez **Exporter l'album (.photopush)**.
+  - Sur desktop : choisissez le dossier d'enregistrement du fichier `.photopush`.
+  - Sur mobile : la feuille de partage système s'ouvre pour envoyer ou enregistrer le fichier.
+  - Le fichier créé est une archive ZIP contenant `album.json` (métadonnées, slides, punaises avec coordonnées) et `media/*` (photos d'origine).
+- [ ] **Importer un album** :
+  - Dans le menu supérieur `...` de la liste des albums, choisissez **Importer un album (.photopush)**.
+  - Sélectionnez un fichier `.photopush` précédemment exporté.
+  - L'album, ses diapositives, ses photos (extraites dans le sandbox) et ses punaises sont entièrement recréés dans votre base locale.
+  - Si un album du même nom existe déjà, un suffixe numérique est automatiquement ajouté (ex: `Voyage (1)`).
+
+---
+
+## 💾 8. Données & Mode Hors Ligne
 - [ ] **100 % local** : L'ensemble de ces fonctionnalités fonctionne sans compte utilisateur, sans connexion internet et sans serveur distant démarré (base SQLite `photopush.db` locale gérée par Serverpod).
 - [ ] **Persistance** : Quittez et relancez l'application : l'ensemble des albums, photos, commentaires et punaises sont conservés intacts.

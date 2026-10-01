@@ -38,6 +38,10 @@
   "linkedPhoto": "Photo liée",
   "change": "Changer",
   "reorganizeAlbum": "Réorganiser l'album",
+  "exportAlbum": "Exporter l'album (.photopush)",
+  "importAlbum": "Importer un album (.photopush)",
+  "exportSuccess": "Album exporté avec succès",
+  "importSuccess": "Album importé avec succès",
   "deleteSlideConfirm": "Voulez-vous supprimer cette diapositive ?",
   "pinCount": "{count, plural, =0{0 punaise} =1{1 punaise} other{{count} punaises}}",
   "@pinCount": {
