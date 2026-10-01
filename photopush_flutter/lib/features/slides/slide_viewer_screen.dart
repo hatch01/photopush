@@ -59,13 +59,6 @@ class SlideViewerScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(album.name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_photo_alternate_outlined),
-            tooltip: l10n.addPhotoSlide,
-            onPressed: () => _addPhoto(context, ref),
-          ),
-        ],
       ),
       body: slidesAsync.when(
         data: (slides) {
@@ -147,6 +140,12 @@ class SlideViewerScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _addPhoto(context, ref),
+        tooltip: l10n.addPhotoSlide,
+        child: const Icon(Icons.add_a_photo),
       ),
     );
   }

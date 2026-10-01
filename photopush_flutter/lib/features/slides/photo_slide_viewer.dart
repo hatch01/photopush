@@ -28,6 +28,9 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
   Animation<Matrix4>? _animation;
   Offset _doubleTapPosition = Offset.zero;
 
+  Future<Asset?>? _assetFuture;
+  bool _isInteracting = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +40,29 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadAssetFuture();
+  }
+
+  @override
+  void didUpdateWidget(covariant PhotoSlideViewer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.slide.assetId != widget.slide.assetId) {
+      _loadAssetFuture();
+    }
+  }
+
+  void _loadAssetFuture() {
+    if (widget.slide.assetId != null) {
+      final repo = ref.read(assetRepositoryProvider);
+      _assetFuture = Asset.db.findById(repo.session, widget.slide.assetId!);
+    } else {
+      _assetFuture = null;
+    }
   }
 
   void _onTransformationChanged() {
@@ -124,18 +150,22 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
       return const Center(child: Text('No Image attached'));
     }
 
-    final repo = ref.watch(assetRepositoryProvider);
-
     return Listener(
       onPointerSignal: _handlePointerSignal,
       child: GestureDetector(
-        onTap: widget.onTap,
+        onTap: () {
+          // Only toggle immersive mode when not zoomed in and not currently interacting
+          if (!_isInteracting &&
+              _transformationController.value.getMaxScaleOnAxis() <= 1.01) {
+            widget.onTap();
+          }
+        },
         onDoubleTapDown: (details) {
           _doubleTapPosition = details.localPosition;
         },
         onDoubleTap: _handleDoubleTap,
         child: FutureBuilder<Asset?>(
-          future: Asset.db.findById(repo.session, widget.slide.assetId!),
+          future: _assetFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -150,6 +180,14 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
                 maxScale: 6.0,
                 clipBehavior: Clip.none,
                 trackpadScrollCausesScale: true,
+                onInteractionStart: (_) {
+                  _isInteracting = true;
+                },
+                onInteractionEnd: (_) {
+                  Future.delayed(const Duration(milliseconds: 200), () {
+                    if (mounted) _isInteracting = false;
+                  });
+                },
                 child: Center(
                   child: Image.file(
                     File(asset.localPath!),

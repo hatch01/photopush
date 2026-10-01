@@ -166,6 +166,7 @@ class _AlbumListScreenState extends ConsumerState<AlbumListScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final name = await CreateAlbumSheet.show(context);
