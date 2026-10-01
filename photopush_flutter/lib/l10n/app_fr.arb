@@ -1,0 +1,10 @@
+{
+  "appTitle": "Photo Push",
+  "@appTitle": {
+    "description": "Le titre de l'application"
+  },
+  "emptyAlbumListHelp": "Appuyez sur le bouton + pour créer un album de diapositives comprenant des photos et des commentaires.\nNotez que vous pouvez ajouter des punaises sur les photos pour créer des commentaires sous forme de bulles ou des liens vers des diapositives.",
+  "@emptyAlbumListHelp": {
+    "description": "Texte d'accueil quand la liste d'albums est vide"
+  }
+}
