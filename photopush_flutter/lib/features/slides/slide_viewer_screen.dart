@@ -127,13 +127,17 @@ class SlideViewerScreen extends ConsumerWidget {
                   initialIndex: index,
                 ),
                 closedBuilder: (context, openContainer) => InkWell(
+                  borderRadius: BorderRadius.circular(4.0),
                   onTap: openContainer,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4.0),
-                    child: AssetThumbnail(
-                      assetId: slide.assetId!,
-                      width: double.infinity,
-                      height: double.infinity,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4.0),
+                      child: AssetThumbnail(
+                        assetId: slide.assetId!,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
                     ),
                   ),
                 ),

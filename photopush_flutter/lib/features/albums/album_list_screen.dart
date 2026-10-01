@@ -157,29 +157,41 @@ class AlbumListScreen extends ConsumerWidget {
                 closedColor: Theme.of(context).colorScheme.surface,
                 openBuilder: (context, _) => SlideViewerScreen(album: album),
                 closedBuilder: (context, openContainer) => InkWell(
+                  borderRadius: BorderRadius.circular(8.0),
                   onTap: openContainer,
                   onLongPress: () {
                     _showAlbumMenu(context, ref, album, l10n);
                   },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: AlbumCoverMosaic(
-                          albumId: album.id,
-                          fallbackCoverAssetId: album.coverAssetId,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(6.0),
+                            child: AlbumCoverMosaic(
+                              albumId: album.id,
+                              fallbackCoverAssetId: album.coverAssetId,
+                            ),
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          album.name,
-                          style: Theme.of(context).textTheme.titleMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            4.0,
+                            8.0,
+                            4.0,
+                            4.0,
+                          ),
+                          child: Text(
+                            album.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );
