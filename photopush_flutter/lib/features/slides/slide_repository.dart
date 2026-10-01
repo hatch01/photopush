@@ -7,7 +7,10 @@ final slideRepositoryProvider = Provider<SlideRepository>((ref) {
   return SlideRepository(dbSession);
 });
 
-final albumSlidesProvider = FutureProvider.family<List<Slide>, UuidValue>((ref, albumId) async {
+final albumSlidesProvider = FutureProvider.family<List<Slide>, UuidValue>((
+  ref,
+  albumId,
+) async {
   final repo = ref.watch(slideRepositoryProvider);
   return repo.listByAlbum(albumId);
 });
@@ -25,7 +28,12 @@ class SlideRepository {
     );
   }
 
-  Future<Slide> createCommentSlide(UuidValue albumId, String text, String title, String orderKey) async {
+  Future<Slide> createCommentSlide(
+    UuidValue albumId,
+    String text,
+    String title,
+    String orderKey,
+  ) async {
     final slide = Slide(
       id: Uuid().v7obj(),
       albumId: albumId,

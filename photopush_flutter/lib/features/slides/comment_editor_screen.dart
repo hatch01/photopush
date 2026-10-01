@@ -18,7 +18,8 @@ class CommentEditorScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CommentEditorScreen> createState() => _CommentEditorScreenState();
+  ConsumerState<CommentEditorScreen> createState() =>
+      _CommentEditorScreenState();
 }
 
 class _CommentEditorScreenState extends ConsumerState<CommentEditorScreen> {
@@ -29,7 +30,9 @@ class _CommentEditorScreenState extends ConsumerState<CommentEditorScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.slide?.title ?? '');
-    _commentController = TextEditingController(text: widget.slide?.commentText ?? '');
+    _commentController = TextEditingController(
+      text: widget.slide?.commentText ?? '',
+    );
   }
 
   @override
@@ -45,11 +48,16 @@ class _CommentEditorScreenState extends ConsumerState<CommentEditorScreen> {
     final repo = ref.read(slideRepositoryProvider);
 
     if (widget.slide == null) {
-      await repo.createCommentSlide(widget.album.id, comment, title, widget.orderKey);
+      await repo.createCommentSlide(
+        widget.album.id,
+        comment,
+        title,
+        widget.orderKey,
+      );
     } else {
       await repo.updateComment(widget.slide!.id, comment, title);
     }
-    
+
     ref.invalidate(albumSlidesProvider(widget.album.id));
     if (mounted) {
       Navigator.of(context).pop();
@@ -59,7 +67,7 @@ class _CommentEditorScreenState extends ConsumerState<CommentEditorScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: TextField(

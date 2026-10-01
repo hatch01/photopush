@@ -27,11 +27,12 @@ class SlideViewerScreen extends ConsumerWidget {
               final choice = await AddSlideSheet.show(context);
               if (choice != null && context.mounted) {
                 if (choice == SlideChoice.comment) {
-                  final slides = ref.read(albumSlidesProvider(album.id)).value ?? [];
-                  final String orderKey = slides.isEmpty 
-                      ? OrderKey.generateFirst() 
+                  final slides =
+                      ref.read(albumSlidesProvider(album.id)).value ?? [];
+                  final String orderKey = slides.isEmpty
+                      ? OrderKey.generateFirst()
                       : OrderKey.generateNext(slides.last.orderKey);
-                  
+
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => CommentEditorScreen(
@@ -71,8 +72,12 @@ class SlideViewerScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final slide = slides[index];
               return ListTile(
-                leading: Icon(slide.kind == 'comment' ? Icons.notes : Icons.photo),
-                title: Text(slide.title.isEmpty ? l10n.untitledSlide : slide.title),
+                leading: Icon(
+                  slide.kind == 'comment' ? Icons.notes : Icons.photo,
+                ),
+                title: Text(
+                  slide.title.isEmpty ? l10n.untitledSlide : slide.title,
+                ),
                 subtitle: Text(
                   slide.kind == 'comment' ? (slide.commentText ?? '') : 'Photo',
                   maxLines: 1,

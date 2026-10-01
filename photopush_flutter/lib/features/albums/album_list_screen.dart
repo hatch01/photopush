@@ -151,7 +151,7 @@ class AlbumListScreen extends ConsumerWidget {
 
             await repo.create(name);
             ref.invalidate(albumListProvider);
-            
+
             // Route to slide viewer of the newly created album
             final newAlbum = await repo.findByName(name);
             if (context.mounted && newAlbum != null) {
