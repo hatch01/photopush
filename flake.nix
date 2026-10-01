@@ -88,28 +88,18 @@
           androidSdkPath = "${androidSdk}/libexec/android-sdk";
           PWD = builtins.getEnv "PWD";
 
-          # Flutter copies native-asset libraries (serverpod's client-side
-          # database brings `libsqlite3_connection_pool.so` and `libsqlite3.so`)
-          # into the app bundle's `lib/` directory, but the Linux embedder never
-          # adds that directory to the dynamic linker search path. The Dart FFI
-          # lookups then fail with "Failed to load dynamic library". The bundle
-          # lives at `build/linux/<flutter-arch>/<mode>/bundle/lib`.
-          flutterLinuxArch =
-            {
-              x86_64 = "x64";
-              aarch64 = "arm64";
-              riscv64 = "riscv64";
-            }
-            .${pkgs.stdenv.hostPlatform.parsed.cpu.name} or "x64";
-
-          nativeAssetsLibDirs =
-            lib.concatMapStringsSep ":"
-              (mode: "${PWD}/photopush_flutter/build/linux/${flutterLinuxArch}/${mode}/bundle/lib")
-              [
-                "debug"
-                "profile"
-                "release"
-              ];
+          # The Linux app used to need `build/linux/<flutter-arch>/<mode>/bundle/lib`
+          # on `LD_LIBRARY_PATH`, because the Dart VM `dlopen()`s the native
+          # assets next to the app (serverpod's client-side database brings
+          # `libsqlite3_connection_pool.so` and `libsqlite3.so`) by bare name and
+          # the engine's RUNPATH does not mention its own directory. That is now
+          # handled in `photopush_flutter/linux/CMakeLists.txt`, which adds
+          # `$ORIGIN` to the engine, and it must stay that way: the bundled
+          # `libsqlite3.so` is a Dart native asset that only exports the ~90
+          # symbols its FFI bindings use -- no `sqlite3_bind_int` -- so leaving
+          # it on `LD_LIBRARY_PATH` breaks every other process of the shell that
+          # resolves `libsqlite3.so` by name (node, and with it the `gemini` CLI:
+          # "node: symbol lookup error: undefined symbol: sqlite3_bind_int").
 
           # A view of the SDK that is identical to `pkgs.flutter` except that
           # packages/flutter_tools/.dart_tool is not linked in.
@@ -171,6 +161,7 @@
               clang
               cmake
               ninja
+              patchelf
               pkg-config
               gtk3
               glib
@@ -237,13 +228,9 @@
               -Djava.net.preferIPv4Stack=true
             '';
 
-            # Make the native-asset libraries bundled next to the Linux app
-            # resolvable by `dlopen`. Prepended so the flutter app started by
-            # `flutter run`/`serverpod start` finds its own bundled `.so` files,
-            # while any pre-existing entries are kept.
-            shellHook = ''
-              export LD_LIBRARY_PATH="${nativeAssetsLibDirs}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-            '';
+            # Nothing to do here: the Linux app resolves its own bundled native
+            # assets through the engine's RUNPATH, see the note above.
+            shellHook = "";
           };
 
           formatter = pkgs.nixfmt-tree;
