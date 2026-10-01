@@ -4,19 +4,21 @@ import 'package:photopush_client/photopush_client.dart';
 class CommentSlideViewer extends StatelessWidget {
   final Slide slide;
   final VoidCallback onTap;
+  final bool isImmersive;
 
   const CommentSlideViewer({
     super.key,
     required this.slide,
     required this.onTap,
+    this.isImmersive = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold extendBodyBehindAppBar forces content to top of screen.
-    // Ensure padding accounts for toolbar height + status bar.
-    final topPadding =
-        MediaQuery.paddingOf(context).top + kToolbarHeight + 32.0;
+    // When the top AppBar is visible, calculate padding so the title starts cleanly below it
+    final topPadding = isImmersive
+        ? MediaQuery.paddingOf(context).top + 32.0
+        : MediaQuery.paddingOf(context).top + kToolbarHeight + 32.0;
 
     return GestureDetector(
       onTap: onTap,
