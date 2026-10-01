@@ -30,10 +30,11 @@
   - [x] Sauvegarde automatique en base SQLite locale.
   - [x] Export / Import d'archive `.photopush` (ZIP `album.json` + `media/*`).
 
-## Phase 2 — Publication du cœur (En cours)
+## Phase 2 — Publication du cœur (Terminée 🎉)
 - [x] Tests unitaires automatisés complets (OrderKey, géométrie des punaises, limites métier, codec d'archive).
 - [x] Audit d'accessibilité (contraste, cibles tactiles >= 48dp, Semantics complets et polices agrandies 200%).
-- [ ] Préparation du build release Android / iOS.
+- [x] Préparation et validation du build release (Linux x64 bundle, Android APK release API 26+ / RNF-01).
+- [x] Jalon : Version 1.0 cœur hors ligne, robuste et publiable.
 
 ## Phase 3 — Serveur (Optionnel P1 - À faire)
 - [ ] API REST (auth, CRUD, sync/push, sync/changes).
