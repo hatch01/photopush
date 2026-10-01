@@ -52,6 +52,7 @@ class _SlideViewerScreenState extends ConsumerState<SlideViewerScreen> {
                     context,
                   ).appBarTheme.backgroundColor?.withValues(alpha: 0.8) ??
                   Colors.black.withValues(alpha: 0.8),
+              foregroundColor: Colors.white,
               elevation: 0,
               actions: [
                 IconButton(
