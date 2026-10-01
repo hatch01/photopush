@@ -31,12 +31,17 @@ Tests need no Docker. `config/test.yaml` sets `database.dataPath`, so Serverpod 
 
 Checklist after doing changes, in this order:
 
+- **ALWAYS run `dart format .`** at the project root before committing to prevent CI format pipeline failures.
 - `dart analyze` (CLI)
-- `dart format` (CLI)
 - `create_migration` and `apply_migrations` (MCP - only if necessary)
 - Do `serverpod` MCP `hot_restart` if required (hot reload is done automatically). Will also hot restart Flutter app
-- Run tests, if applicable (`dart test` in the server package)
+- Run tests, if applicable (`dart test` in the server package, `flutter test` in the flutter package)
 - Check `serverpod` MCP `tail_server_logs` and `tail_flutter_logs` for any issues.
+
+## Pull Request Conventions
+
+When creating PRs with `gh pr create`:
+- PR titles must be based on the branch name (e.g. `feature/phase-0-base` or `feature/phase-1-albums`). Do not use random or single commit summaries as the PR title.
 
 If the user asks you to test the app:
 

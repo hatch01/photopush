@@ -35,4 +35,13 @@ feat(albums): enforce case-insensitive unique album names
 assisted-by: gemini-cli, gemini-2.5-pro
 ```
 
+## Mandatory Code Formatting
+
+Before preparing or finalizing any commit, **always run `dart format .`** at the project root to ensure GitHub Actions CI format checks pass.
+
+## Pull Request Conventions
+
+When creating PRs with `gh pr create`:
+- PR titles must be named after the branch (e.g. `feature/phase-0-base` or `feature/phase-0-base: implement phase 0 offline foundation`). Never use a random commit summary as the PR title.
+
 See [AGENTS.md](./AGENTS.md) for shared instructions across all AI assistants.
