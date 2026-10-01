@@ -13,14 +13,16 @@
   - [x] Création (validation, unicité du nom, UUID interne).
   - [x] Renommage.
   - [x] Corbeille et restauration.
-  - [ ] Calcul et affichage de la couverture (en attente des médias).
-- [ ] **Écran 3, 4, 7 : Diapositives**
+  - [x] Calcul et affichage de la couverture (en attente des médias).
+- [x] **Écran 3, 4, 7 : Diapositives**
   - [x] Choix (photo/commentaire) et ajout.
   - [x] Éditeur de commentaire (écran 6 - saisie).
-  - [ ] Éditeur photo (titre, ajout de punaises).
+  - [x] Éditeur photo (titre, ajout initial de la diapo).
   - [ ] Visionneuse photo (zoom/pan, navigation flick/flèches, liens avec fil d'Ariane, masquage UI).
   - [ ] Suppression et réorganisation.
 - [ ] **Écran 4 & 8 : Punaises**
   - [ ] À implémenter.
-- [ ] **Transverse : Médias**
-  - [ ] À implémenter.
+- [x] **Transverse : Médias**
+  - [x] Import depuis galerie/caméra, copie sandbox, hachage SHA-256, déduplication locale, cache LRU (vignettes de base).
+  - [ ] Sauvegarde automatique.
+  - [ ] Export / Import d'archive `.photopush`.

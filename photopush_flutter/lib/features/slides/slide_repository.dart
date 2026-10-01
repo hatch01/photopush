@@ -49,6 +49,32 @@ class SlideRepository {
     return Slide.db.insertRow(session, slide);
   }
 
+  Future<Slide> createPhotoSlide(UuidValue albumId, UuidValue assetId, String orderKey) async {
+    final slide = Slide(
+      id: Uuid().v7obj(),
+      albumId: albumId,
+      kind: 'photo',
+      title: '',
+      assetId: assetId,
+      orderKey: orderKey,
+      hlcWall: DateTime.now().millisecondsSinceEpoch,
+      hlcCounter: 0,
+      deviceId: 'TODO_LOCAL_DEVICE_ID',
+      dirty: 1,
+    );
+    
+    final inserted = await Slide.db.insertRow(session, slide);
+
+    // Update album cover if it has none
+    var album = await Album.db.findById(session, albumId);
+    if (album != null && album.coverAssetId == null) {
+      album = album.copyWith(coverAssetId: assetId);
+      await Album.db.updateRow(session, album);
+    }
+    
+    return inserted;
+  }
+
   Future<void> updateComment(UuidValue id, String text, String title) async {
     var slide = await Slide.db.findById(session, id);
     if (slide != null) {

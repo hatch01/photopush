@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:photopush_client/photopush_client.dart';
 import '../../l10n/app_localizations.dart';
 import 'slide_repository.dart';
 import 'add_slide_sheet.dart';
 import 'comment_editor_screen.dart';
+import 'media_service.dart';
 import '../../core/utils/order_key.dart';
+
+import 'asset_thumbnail.dart';
 
 class SlideViewerScreen extends ConsumerWidget {
   final Album album;
@@ -26,13 +30,12 @@ class SlideViewerScreen extends ConsumerWidget {
             onPressed: () async {
               final choice = await AddSlideSheet.show(context);
               if (choice != null && context.mounted) {
-                if (choice == SlideChoice.comment) {
-                  final slides =
-                      ref.read(albumSlidesProvider(album.id)).value ?? [];
-                  final String orderKey = slides.isEmpty
-                      ? OrderKey.generateFirst()
-                      : OrderKey.generateNext(slides.last.orderKey);
+                final slides = ref.read(albumSlidesProvider(album.id)).value ?? [];
+                final String orderKey = slides.isEmpty 
+                    ? OrderKey.generateFirst() 
+                    : OrderKey.generateNext(slides.last.orderKey);
 
+                if (choice == SlideChoice.comment) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => CommentEditorScreen(
@@ -41,11 +44,32 @@ class SlideViewerScreen extends ConsumerWidget {
                       ),
                     ),
                   );
-                } else {
-                  // Photo slide choice - To be implemented next step
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Photo slides coming soon!')),
-                  );
+                } else if (choice == SlideChoice.photo) {
+                  final picker = ImagePicker();
+                  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                  
+                  if (pickedFile != null && context.mounted) {
+                    // Show a simple loading indicator while processing
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => const Center(child: CircularProgressIndicator()),
+                    );
+
+                    try {
+                      final mediaService = ref.read(mediaServiceProvider);
+                      final asset = await mediaService.importMedia(pickedFile);
+                      
+                      final slideRepo = ref.read(slideRepositoryProvider);
+                      await slideRepo.createPhotoSlide(album.id, asset.id, orderKey);
+                      
+                      ref.invalidate(albumSlidesProvider(album.id));
+                    } finally {
+                      if (context.mounted) {
+                        Navigator.of(context).pop(); // Close loading dialog
+                      }
+                    }
+                  }
                 }
               }
             },
@@ -72,12 +96,10 @@ class SlideViewerScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final slide = slides[index];
               return ListTile(
-                leading: Icon(
-                  slide.kind == 'comment' ? Icons.notes : Icons.photo,
-                ),
-                title: Text(
-                  slide.title.isEmpty ? l10n.untitledSlide : slide.title,
-                ),
+                leading: slide.kind == 'photo' && slide.assetId != null
+                    ? AssetThumbnail(assetId: slide.assetId!)
+                    : Icon(slide.kind == 'comment' ? Icons.notes : Icons.photo),
+                title: Text(slide.title.isEmpty ? l10n.untitledSlide : slide.title),
                 subtitle: Text(
                   slide.kind == 'comment' ? (slide.commentText ?? '') : 'Photo',
                   maxLines: 1,

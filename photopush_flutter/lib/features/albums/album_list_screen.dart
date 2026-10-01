@@ -5,6 +5,7 @@ import 'create_album_sheet.dart';
 import 'album_repository.dart';
 import 'trash_screen.dart';
 import '../slides/slide_viewer_screen.dart';
+import '../slides/asset_thumbnail.dart';
 
 enum _AlbumListMenu { trash }
 
@@ -60,6 +61,9 @@ class AlbumListScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final album = albums[index];
               return ListTile(
+                leading: album.coverAssetId != null
+                    ? AssetThumbnail(assetId: album.coverAssetId!)
+                    : const Icon(Icons.album, size: 50),
                 title: Text(album.name),
                 onTap: () {
                   Navigator.of(context).push(
