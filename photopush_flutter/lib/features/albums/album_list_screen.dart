@@ -4,6 +4,7 @@ import '../../l10n/app_localizations.dart';
 import 'create_album_sheet.dart';
 import 'album_repository.dart';
 import 'trash_screen.dart';
+import '../slides/slide_viewer_screen.dart';
 
 enum _AlbumListMenu { trash }
 
@@ -61,7 +62,11 @@ class AlbumListScreen extends ConsumerWidget {
               return ListTile(
                 title: Text(album.name),
                 onTap: () {
-                  // TODO: Route to slide viewer
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => SlideViewerScreen(album: album),
+                    ),
+                  );
                 },
                 trailing: PopupMenuButton<String>(
                   onSelected: (value) async {
@@ -146,7 +151,16 @@ class AlbumListScreen extends ConsumerWidget {
 
             await repo.create(name);
             ref.invalidate(albumListProvider);
-            // TODO: Route to slide editor
+            
+            // Route to slide viewer of the newly created album
+            final newAlbum = await repo.findByName(name);
+            if (context.mounted && newAlbum != null) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => SlideViewerScreen(album: newAlbum),
+                ),
+              );
+            }
           }
         },
         child: const Icon(Icons.add),

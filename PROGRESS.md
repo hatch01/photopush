@@ -14,5 +14,13 @@
   - [x] Renommage.
   - [x] Corbeille et restauration.
   - [ ] Calcul et affichage de la couverture (en attente des médias).
-- [ ] **Diapositives & Punaises & Médias**
-  - [ ] À implémenter ensuite.
+- [ ] **Écran 3, 4, 7 : Diapositives**
+  - [x] Choix (photo/commentaire) et ajout.
+  - [x] Éditeur de commentaire (écran 6 - saisie).
+  - [ ] Éditeur photo (titre, ajout de punaises).
+  - [ ] Visionneuse photo (zoom/pan, navigation flick/flèches, liens avec fil d'Ariane, masquage UI).
+  - [ ] Suppression et réorganisation.
+- [ ] **Écran 4 & 8 : Punaises**
+  - [ ] À implémenter.
+- [ ] **Transverse : Médias**
+  - [ ] À implémenter.

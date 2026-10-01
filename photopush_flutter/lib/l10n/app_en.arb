@@ -15,5 +15,11 @@
   "trash": "Trash",
   "restore": "Restore",
   "emptyTrashHelp": "Trash is empty.",
+  "addPhotoSlide": "Photo",
+  "addCommentSlide": "Comment",
+  "slideTitleHint": "Title",
+  "commentHint": "Write your comment here...",
+  "emptyAlbumHelp": "Tap on + button to create a slide: photo or comment.",
+  "untitledSlide": "Untitled",
   "ok": "OK"
 }

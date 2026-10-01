@@ -15,5 +15,11 @@
   "trash": "Corbeille",
   "restore": "Restaurer",
   "emptyTrashHelp": "La corbeille est vide.",
+  "addPhotoSlide": "Photo",
+  "addCommentSlide": "Commentaire",
+  "slideTitleHint": "Titre",
+  "commentHint": "Écrivez votre commentaire ici...",
+  "emptyAlbumHelp": "Appuyez sur le bouton + pour créer une diapositive : photo ou commentaire.",
+  "untitledSlide": "Sans titre",
   "ok": "OK"
 }
