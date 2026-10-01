@@ -19,12 +19,12 @@
   - [x] Éditeur de commentaire (écran 6 - saisie).
   - [x] Éditeur photo (titre, ajout initial de la diapo).
   - [x] Visionneuse photo (zoom/pan, navigation flick/flèches, masquage UI).
-  - [ ] Liens avec fil d'Ariane.
+  - [x] Liens avec fil d'Ariane.
   - [ ] Suppression et réorganisation.
 - [x] **Écran 4 & 8 : Punaises**
   - [x] Création au doigt, mode édition/lecture.
   - [x] Rendu normalisé indépendant de l'écran avec `InteractiveViewer`.
-  - [ ] Options étendues (Lien, Texte, Configuration).
+  - [x] Options étendues (Lien, Texte, Configuration).
 - [x] **Transverse : Médias**
   - [x] Import depuis galerie/caméra, copie sandbox, hachage SHA-256, déduplication locale, cache LRU (vignettes de base).
   - [ ] Sauvegarde automatique.

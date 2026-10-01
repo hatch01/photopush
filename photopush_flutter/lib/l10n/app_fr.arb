@@ -22,5 +22,16 @@
   "emptyAlbumHelp": "Appuyez sur le bouton + pour créer une diapositive : photo ou commentaire.",
   "untitledSlide": "Sans titre",
   "maxPinsReachedError": "Nombre maximum de punaises atteint pour cette diapositive.",
+  "pinSettingsTitle": "Réglages des punaises",
+  "pinAddText": "Ajouter un texte",
+  "pinEditText": "Modifier le texte",
+  "pinAddLink": "Ajouter un lien",
+  "pinEditLink": "Modifier le lien",
+  "delete": "Supprimer",
+  "pinLinkTitle": "Sélectionner la cible",
+  "noOtherSlides": "Aucune autre diapositive disponible",
+  "pinTextTitle": "Texte de la punaise",
+  "close": "Fermer",
+  "goToSlide": "Aller à la diapositive",
   "ok": "OK"
 }

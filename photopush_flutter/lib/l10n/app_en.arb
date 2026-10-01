@@ -22,5 +22,16 @@
   "emptyAlbumHelp": "Tap on + button to create a slide: photo or comment.",
   "untitledSlide": "Untitled",
   "maxPinsReachedError": "Maximum number of pins reached for this slide.",
+  "pinSettingsTitle": "Pin Settings",
+  "pinAddText": "Add text",
+  "pinEditText": "Edit text",
+  "pinAddLink": "Add link",
+  "pinEditLink": "Edit link",
+  "delete": "Delete",
+  "pinLinkTitle": "Select target slide",
+  "noOtherSlides": "No other slides available",
+  "pinTextTitle": "Pin text",
+  "close": "Close",
+  "goToSlide": "Go to slide",
   "ok": "OK"
 }

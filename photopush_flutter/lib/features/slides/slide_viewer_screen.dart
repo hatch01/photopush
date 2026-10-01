@@ -9,12 +9,18 @@ import 'slide_repository.dart';
 import 'media_service.dart';
 import 'asset_thumbnail.dart';
 import 'fullscreen_slide_viewer.dart';
+import 'pin_settings_screen.dart';
 import '../../core/utils/order_key.dart';
 
 class SlideViewerScreen extends ConsumerWidget {
   final Album album;
+  final UuidValue? initialSlideId;
 
-  const SlideViewerScreen({super.key, required this.album});
+  const SlideViewerScreen({
+    super.key,
+    required this.album,
+    this.initialSlideId,
+  });
 
   Future<void> _addPhoto(BuildContext context, WidgetRef ref) async {
     final picker = ImagePicker();
@@ -59,6 +65,25 @@ class SlideViewerScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(album.name),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'pin_settings') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PinSettingsScreen(),
+                  ),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'pin_settings',
+                child: Text(l10n.pinSettingsTitle),
+              ),
+            ],
+          ),
+        ],
       ),
       body: slidesAsync.when(
         data: (slides) {
@@ -118,6 +143,7 @@ class SlideViewerScreen extends ConsumerWidget {
                 openBuilder: (context, _) => FullscreenSlideViewer(
                   album: album,
                   initialIndex: index,
+                  initialSlideId: initialSlideId,
                 ),
                 closedBuilder: (context, openContainer) => InkWell(
                   borderRadius: BorderRadius.circular(4.0),

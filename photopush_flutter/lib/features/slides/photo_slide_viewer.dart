@@ -6,21 +6,29 @@ import 'package:photopush_client/photopush_client.dart';
 import '../../core/app_limits.dart';
 import '../../l10n/app_localizations.dart';
 import 'asset_repository.dart';
+import 'pin_action_menu.dart';
+import 'pin_bubble_dialog.dart';
 import 'pin_repository.dart';
+import 'pin_settings_screen.dart';
 import 'pin_widget.dart';
+import 'fullscreen_slide_viewer.dart';
 
 class PhotoSlideViewer extends ConsumerStatefulWidget {
+  final Album album;
   final Slide slide;
   final VoidCallback onTap;
   final ValueChanged<bool>? onZoomChanged;
   final bool isEditing;
+  final ValueChanged<UuidValue>? onNavigateToSlide;
 
   const PhotoSlideViewer({
     super.key,
+    required this.album,
     required this.slide,
     required this.onTap,
     this.onZoomChanged,
     this.isEditing = false,
+    this.onNavigateToSlide,
   });
 
   @override
@@ -107,16 +115,13 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
         ..storage[13] = y;
     }
 
-    _animation =
-        Matrix4Tween(
-          begin: currentMatrix,
-          end: targetMatrix,
-        ).animate(
-          CurvedAnimation(
-            parent: _animationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+    _animation = Matrix4Tween(
+      begin: currentMatrix,
+      end: targetMatrix,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutCubic,
+    ));
 
     void listener() {
       if (_animation != null) {
@@ -178,21 +183,21 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
             }
 
             final renderBox = context.findRenderObject() as RenderBox;
-            final localPosition = renderBox.globalToLocal(
-              details.globalPosition,
-            );
+            final localPosition =
+                renderBox.globalToLocal(details.globalPosition);
 
             final x = (localPosition.dx / renderBox.size.width).clamp(0.0, 1.0);
-            final y = (localPosition.dy / renderBox.size.height).clamp(
-              0.0,
-              1.0,
-            );
+            final y =
+                (localPosition.dy / renderBox.size.height).clamp(0.0, 1.0);
 
+            final pinSettings = ref.read(pinSettingsProvider);
             final pinRepo = ref.read(pinRepositoryProvider);
             await pinRepo.create(
               slideId: widget.slide.id,
               x: x,
               y: y,
+              color: pinSettings.color,
+              sizeScale: pinSettings.sizeScale,
             );
             ref.invalidate(slidePinsProvider(widget.slide.id));
           } else {
@@ -248,21 +253,36 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
                               pin: pin,
                               onTap: () async {
                                 if (widget.isEditing) {
-                                  final pinRepo = ref.read(
-                                    pinRepositoryProvider,
-                                  );
-                                  await pinRepo.moveToTrash(pin.id);
-                                  ref.invalidate(
-                                    slidePinsProvider(widget.slide.id),
+                                  await PinActionMenu.show(
+                                    context,
+                                    ref,
+                                    pin,
+                                    widget.slide.albumId,
+                                    widget.slide.id,
                                   );
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Pin tapped! Kind: ${pin.kind}',
-                                      ),
-                                    ),
-                                  );
+                                  void navigate() {
+                                    if (widget.onNavigateToSlide != null &&
+                                        pin.targetSlideId != null) {
+                                      widget.onNavigateToSlide!(
+                                        pin.targetSlideId!,
+                                      );
+                                    }
+                                  }
+
+                                  if (pin.text != null &&
+                                      pin.text!.isNotEmpty) {
+                                    await PinBubbleDialog.show(
+                                      context,
+                                      pin,
+                                      onNavigate:
+                                          pin.targetSlideId != null
+                                              ? navigate
+                                              : null,
+                                    );
+                                  } else if (pin.targetSlideId != null) {
+                                    navigate();
+                                  }
                                 }
                               },
                             ),
