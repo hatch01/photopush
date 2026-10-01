@@ -16,7 +16,7 @@ late final ClientDatabaseSession dbSession;
 
 Future<void> initializeClient() async {
   client = Client(await serverUrl);
-  
+
   if (isOnline) {
     client.connectivityMonitor = FlutterConnectivityMonitor();
     client.authSessionManager = FlutterAuthSessionManager();

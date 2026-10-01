@@ -50,25 +50,25 @@ class _AlbumListScreenState extends State<AlbumListScreen> {
       body: _albums == null
           ? const Center(child: CircularProgressIndicator())
           : _albums!.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32.0),
-                    child: Text(
-                      l10n.emptyAlbumListHelp,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: _albums!.length,
-                  itemBuilder: (context, index) {
-                    final album = _albums![index];
-                    return ListTile(
-                      title: Text(album.name),
-                    );
-                  },
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Text(
+                  l10n.emptyAlbumListHelp,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
+              ),
+            )
+          : ListView.builder(
+              itemCount: _albums!.length,
+              itemBuilder: (context, index) {
+                final album = _albums![index];
+                return ListTile(
+                  title: Text(album.name),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         child: const Icon(Icons.add),
