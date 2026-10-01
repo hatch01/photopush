@@ -126,7 +126,7 @@ install(DIRECTORY "${NATIVE_ASSETS_DIR}"
 get_filename_component(FLUTTER_ENGINE_NAME "${FLUTTER_LIBRARY}" NAME)
 install(CODE "
   execute_process(
-    COMMAND patchelf --add-rpath '\$ORIGIN'
+    COMMAND patchelf --add-rpath \$ORIGIN
             \"${INSTALL_BUNDLE_LIB_DIR}/${FLUTTER_ENGINE_NAME}\"
     COMMAND_ERROR_IS_FATAL ANY
   )
