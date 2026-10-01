@@ -32,7 +32,8 @@ class PhotoSlideViewer extends ConsumerWidget {
           }
 
           final asset = snapshot.data;
-          if (asset?.localPath != null && File(asset!.localPath!).existsSync()) {
+          if (asset?.localPath != null &&
+              File(asset!.localPath!).existsSync()) {
             return InteractiveViewer(
               minScale: 1.0,
               maxScale: 6.0,
