@@ -22,6 +22,7 @@ class FullscreenSlideViewer extends ConsumerStatefulWidget {
 class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
   late final PageController _pageController;
   bool _immersiveMode = false;
+  bool _isZoomed = false;
 
   @override
   void initState() {
@@ -33,6 +34,14 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
     setState(() {
       _immersiveMode = !_immersiveMode;
     });
+  }
+
+  void _onZoomChanged(bool isZoomed) {
+    if (_isZoomed != isZoomed) {
+      setState(() {
+        _isZoomed = isZoomed;
+      });
+    }
   }
 
   @override
@@ -66,12 +75,16 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
 
           return PageView.builder(
             controller: _pageController,
+            physics: _isZoomed
+                ? const NeverScrollableScrollPhysics()
+                : const PageScrollPhysics(),
             itemCount: photoSlides.length,
             itemBuilder: (context, index) {
               final slide = photoSlides[index];
               return PhotoSlideViewer(
                 slide: slide,
                 onTap: _toggleImmersive,
+                onZoomChanged: _onZoomChanged,
               );
             },
           );
