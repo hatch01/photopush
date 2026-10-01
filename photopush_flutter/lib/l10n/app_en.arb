@@ -36,5 +36,16 @@
   "ok": "OK",
   "edit": "Edit",
   "linkedPhoto": "Linked photo",
-  "change": "Change"
+  "change": "Change",
+  "reorganizeAlbum": "Reorganize album",
+  "deleteSlideConfirm": "Do you really want to delete this slide?",
+  "pinCount": "{count, plural, =0{0 pins} =1{1 pin} other{{count} pins}}",
+  "@pinCount": {
+    "description": "Number of pins",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

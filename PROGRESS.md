@@ -20,7 +20,7 @@
   - [x] Éditeur photo (titre, ajout initial de la diapo).
   - [x] Visionneuse photo (zoom/pan, navigation flick/flèches, masquage UI).
   - [x] Liens avec fil d'Ariane.
-  - [ ] Suppression et réorganisation.
+  - [x] Suppression et réorganisation.
 - [x] **Écran 4 & 8 : Punaises**
   - [x] Création au doigt, mode édition/lecture.
   - [x] Rendu normalisé indépendant de l'écran avec `InteractiveViewer`.

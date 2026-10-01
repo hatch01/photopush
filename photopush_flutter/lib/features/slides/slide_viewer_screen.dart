@@ -9,6 +9,7 @@ import 'slide_repository.dart';
 import 'media_service.dart';
 import 'asset_thumbnail.dart';
 import 'fullscreen_slide_viewer.dart';
+import 'reorder_slides_screen.dart';
 import '../../core/utils/order_key.dart';
 
 class SlideViewerScreen extends ConsumerWidget {
@@ -64,6 +65,19 @@ class SlideViewerScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(album.name),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_vert),
+            tooltip: l10n.reorganizeAlbum,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ReorderSlidesScreen(album: album),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: slidesAsync.when(
         data: (slides) {

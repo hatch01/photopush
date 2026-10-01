@@ -1,10 +1,15 @@
-/// Basic fractional indexing implementation for local ordering.
-/// In a real production app, this would use a robust base62/fractional indexing algorithm.
-/// For now, we'll use a simple string append strategy to ensure inserts between elements.
+/// Fractional / sequential indexing implementation for local ordering.
+/// Ensures that lexicographical sorting matches chronological / user-specified order.
 class OrderKey {
-  static String generateFirst() => 'A';
+  static String generateFirst() => '000000';
 
   static String generateNext(String previous) {
-    return '${previous}a'; // Very naive approach for MVP, normally we'd increment the char
+    final parsed = int.tryParse(previous);
+    if (parsed != null) {
+      return (parsed + 1).toString().padLeft(6, '0');
+    }
+    return '${previous}a';
   }
+
+  static String keyFromIndex(int index) => index.toString().padLeft(6, '0');
 }

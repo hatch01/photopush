@@ -36,5 +36,16 @@
   "ok": "OK",
   "edit": "Modifier",
   "linkedPhoto": "Photo liée",
-  "change": "Changer"
+  "change": "Changer",
+  "reorganizeAlbum": "Réorganiser l'album",
+  "deleteSlideConfirm": "Voulez-vous supprimer cette diapositive ?",
+  "pinCount": "{count, plural, =0{0 punaise} =1{1 punaise} other{{count} punaises}}",
+  "@pinCount": {
+    "description": "Nombre de punaises",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
