@@ -3,9 +3,11 @@ import '../../l10n/app_localizations.dart';
 import '../../core/app_limits.dart';
 
 class CreateAlbumSheet extends StatefulWidget {
-  const CreateAlbumSheet({super.key});
+  final String? initialName;
 
-  static Future<String?> show(BuildContext context) {
+  const CreateAlbumSheet({super.key, this.initialName});
+
+  static Future<String?> show(BuildContext context, {String? initialName}) {
     return showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
@@ -13,7 +15,7 @@ class CreateAlbumSheet extends StatefulWidget {
         padding: EdgeInsets.only(
           bottom: MediaQuery.viewInsetsOf(context).bottom,
         ),
-        child: const CreateAlbumSheet(),
+        child: CreateAlbumSheet(initialName: initialName),
       ),
     );
   }
@@ -23,8 +25,14 @@ class CreateAlbumSheet extends StatefulWidget {
 }
 
 class _CreateAlbumSheetState extends State<CreateAlbumSheet> {
-  final _controller = TextEditingController();
+  late final TextEditingController _controller;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialName);
+  }
 
   @override
   void dispose() {
@@ -51,6 +59,8 @@ class _CreateAlbumSheetState extends State<CreateAlbumSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isRename = widget.initialName != null;
+    
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -59,7 +69,7 @@ class _CreateAlbumSheetState extends State<CreateAlbumSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              l10n.createAlbumTitle,
+              isRename ? l10n.renameAlbumTitle : l10n.createAlbumTitle,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
@@ -90,7 +100,7 @@ class _CreateAlbumSheetState extends State<CreateAlbumSheet> {
                 const SizedBox(width: 8),
                 FilledButton(
                   onPressed: () => _validateAndSubmit(l10n),
-                  child: Text(l10n.create),
+                  child: Text(isRename ? l10n.rename : l10n.create),
                 ),
               ],
             ),

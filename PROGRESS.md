@@ -9,8 +9,10 @@
 - [x] Jalon : L'application démarre et affiche une liste d'albums vide depuis SQLite, 100% hors ligne.
 
 ## Phase 1 — Fonctionnel local (En cours)
-- [ ] **Écran 1 & 2 : Albums**
+- [x] **Écran 1 & 2 : Albums**
   - [x] Création (validation, unicité du nom, UUID interne).
-  - [ ] Renommage, corbeille et restauration, calcul de couverture.
+  - [x] Renommage.
+  - [x] Corbeille et restauration.
+  - [ ] Calcul et affichage de la couverture (en attente des médias).
 - [ ] **Diapositives & Punaises & Médias**
   - [ ] À implémenter ensuite.
