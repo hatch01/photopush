@@ -3,18 +3,24 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photopush_client/photopush_client.dart';
+import '../../core/app_limits.dart';
+import '../../l10n/app_localizations.dart';
 import 'asset_repository.dart';
+import 'pin_repository.dart';
+import 'pin_widget.dart';
 
 class PhotoSlideViewer extends ConsumerStatefulWidget {
   final Slide slide;
   final VoidCallback onTap;
   final ValueChanged<bool>? onZoomChanged;
+  final bool isEditing;
 
   const PhotoSlideViewer({
     super.key,
     required this.slide,
     required this.onTap,
     this.onZoomChanged,
+    this.isEditing = false,
   });
 
   @override
@@ -80,6 +86,8 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
   }
 
   void _handleDoubleTap() {
+    if (widget.isEditing) return; // Disable double-tap zoom while in pin edit mode
+
     final currentMatrix = _transformationController.value;
     final currentScale = currentMatrix.getMaxScaleOnAxis();
 
@@ -97,16 +105,13 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
         ..storage[13] = y;
     }
 
-    _animation =
-        Matrix4Tween(
-          begin: currentMatrix,
-          end: targetMatrix,
-        ).animate(
-          CurvedAnimation(
-            parent: _animationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+    _animation = Matrix4Tween(
+      begin: currentMatrix,
+      end: targetMatrix,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutCubic,
+    ));
 
     void listener() {
       if (_animation != null) {
@@ -150,14 +155,43 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
       return const Center(child: Text('No Image attached'));
     }
 
+    final pinsAsync = ref.watch(slidePinsProvider(widget.slide.id));
+    final l10n = AppLocalizations.of(context)!;
+
     return Listener(
       onPointerSignal: _handlePointerSignal,
       child: GestureDetector(
-        onTap: () {
-          // Only toggle immersive mode when not zoomed in and not currently interacting
-          if (!_isInteracting &&
-              _transformationController.value.getMaxScaleOnAxis() <= 1.01) {
-            widget.onTap();
+        onTapUp: (details) async {
+          if (widget.isEditing) {
+            final currentPins =
+                ref.read(slidePinsProvider(widget.slide.id)).value ?? [];
+            if (currentPins.length >= AppLimits.maxPinsPerSlide) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.maxPinsReachedError)),
+              );
+              return;
+            }
+
+            final renderBox = context.findRenderObject() as RenderBox;
+            final localPosition =
+                renderBox.globalToLocal(details.globalPosition);
+
+            final x = (localPosition.dx / renderBox.size.width).clamp(0.0, 1.0);
+            final y =
+                (localPosition.dy / renderBox.size.height).clamp(0.0, 1.0);
+
+            final pinRepo = ref.read(pinRepositoryProvider);
+            await pinRepo.create(
+              slideId: widget.slide.id,
+              x: x,
+              y: y,
+            );
+            ref.invalidate(slidePinsProvider(widget.slide.id));
+          } else {
+            if (!_isInteracting &&
+                _transformationController.value.getMaxScaleOnAxis() <= 1.01) {
+              widget.onTap();
+            }
           }
         },
         onDoubleTapDown: (details) {
@@ -189,11 +223,43 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
                   });
                 },
                 child: Center(
-                  child: Image.file(
-                    File(asset.localPath!),
-                    fit: BoxFit.contain,
-                    width: double.infinity,
-                    height: double.infinity,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.file(
+                        File(asset.localPath!),
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                      if (pinsAsync.hasValue)
+                        ...pinsAsync.value!.map((pin) {
+                          return Align(
+                            alignment: Alignment(pin.x * 2 - 1, pin.y * 2 - 1),
+                            child: PinWidget(
+                              pin: pin,
+                              onTap: () async {
+                                if (widget.isEditing) {
+                                  final pinRepo =
+                                      ref.read(pinRepositoryProvider);
+                                  await pinRepo.moveToTrash(pin.id);
+                                  ref.invalidate(
+                                    slidePinsProvider(widget.slide.id),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Pin tapped! Kind: ${pin.kind}',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          );
+                        }),
+                    ],
                   ),
                 ),
               );

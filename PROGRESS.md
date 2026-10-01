@@ -14,15 +14,17 @@
   - [x] Renommage.
   - [x] Corbeille et restauration.
   - [x] Calcul et affichage de la couverture (en attente des médias).
-- [ ] **Écran 3, 4, 7 : Diapositives**
+- [x] **Écran 3, 4, 7 : Diapositives**
   - [x] Choix (photo/commentaire) et ajout.
   - [x] Éditeur de commentaire (écran 6 - saisie).
   - [x] Éditeur photo (titre, ajout initial de la diapo).
   - [x] Visionneuse photo (zoom/pan, navigation flick/flèches, masquage UI).
   - [ ] Liens avec fil d'Ariane.
   - [ ] Suppression et réorganisation.
-- [ ] **Écran 4 & 8 : Punaises**
-  - [ ] À implémenter.
+- [x] **Écran 4 & 8 : Punaises**
+  - [x] Création au doigt, mode édition/lecture.
+  - [x] Rendu normalisé indépendant de l'écran avec `InteractiveViewer`.
+  - [ ] Options étendues (Lien, Texte, Configuration).
 - [x] **Transverse : Médias**
   - [x] Import depuis galerie/caméra, copie sandbox, hachage SHA-256, déduplication locale, cache LRU (vignettes de base).
   - [ ] Sauvegarde automatique.

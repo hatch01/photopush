@@ -23,6 +23,7 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
   late final PageController _pageController;
   bool _immersiveMode = false;
   bool _isZoomed = false;
+  bool _isEditing = false;
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
   }
 
   void _toggleImmersive() {
+    if (_isEditing) return; // Don't allow immersive mode toggle while editing
     setState(() {
       _immersiveMode = !_immersiveMode;
     });
@@ -75,7 +77,7 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
 
           return PageView.builder(
             controller: _pageController,
-            physics: _isZoomed
+            physics: (_isZoomed || _isEditing)
                 ? const NeverScrollableScrollPhysics()
                 : const PageScrollPhysics(),
             itemCount: photoSlides.length,
@@ -85,6 +87,7 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
                 slide: slide,
                 onTap: _toggleImmersive,
                 onZoomChanged: _onZoomChanged,
+                isEditing: _isEditing,
               );
             },
           );
@@ -92,6 +95,18 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
       ),
+      floatingActionButton: _immersiveMode
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  _isEditing = !_isEditing;
+                });
+              },
+              backgroundColor:
+                  _isEditing ? Theme.of(context).colorScheme.error : null,
+              child: Icon(_isEditing ? Icons.close : Icons.edit),
+            ),
     );
   }
 }

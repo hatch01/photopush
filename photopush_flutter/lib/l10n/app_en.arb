@@ -21,5 +21,6 @@
   "commentHint": "Write your comment here...",
   "emptyAlbumHelp": "Tap on + button to create a slide: photo or comment.",
   "untitledSlide": "Untitled",
+  "maxPinsReachedError": "Maximum number of pins reached for this slide.",
   "ok": "OK"
 }

@@ -21,5 +21,6 @@
   "commentHint": "Écrivez votre commentaire ici...",
   "emptyAlbumHelp": "Appuyez sur le bouton + pour créer une diapositive : photo ou commentaire.",
   "untitledSlide": "Sans titre",
+  "maxPinsReachedError": "Nombre maximum de punaises atteint pour cette diapositive.",
   "ok": "OK"
 }
