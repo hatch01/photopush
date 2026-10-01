@@ -1,5 +1,7 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:photopush_client/photopush_client.dart';
 import '../../l10n/app_localizations.dart';
 import 'create_album_sheet.dart';
 import 'album_repository.dart';
@@ -7,19 +9,20 @@ import 'trash_screen.dart';
 import '../slides/slide_viewer_screen.dart';
 import 'album_cover_mosaic.dart';
 
-import 'package:animations/animations.dart';
-import 'package:photopush_client/photopush_client.dart';
-
-// ... (in _AlbumListMenu enum and start of AlbumListScreen)
-
 enum _AlbumListMenu { trash }
 
-class AlbumListScreen extends ConsumerWidget {
+class AlbumListScreen extends ConsumerStatefulWidget {
   const AlbumListScreen({super.key});
+
+  @override
+  ConsumerState<AlbumListScreen> createState() => _AlbumListScreenState();
+}
+
+class _AlbumListScreenState extends ConsumerState<AlbumListScreen> {
+  UuidValue? _newlyCreatedAlbumId;
 
   void _showAlbumMenu(
     BuildContext context,
-    WidgetRef ref,
     Album album,
     AppLocalizations l10n,
   ) {
@@ -95,7 +98,7 @@ class AlbumListScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final albumsAsyncValue = ref.watch(albumListProvider);
 
@@ -149,51 +152,13 @@ class AlbumListScreen extends ConsumerWidget {
             itemCount: albums.length,
             itemBuilder: (context, index) {
               final album = albums[index];
-              return OpenContainer(
-                closedElevation: 2.0,
-                closedShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                closedColor: Theme.of(context).colorScheme.surface,
-                openBuilder: (context, _) => SlideViewerScreen(album: album),
-                closedBuilder: (context, openContainer) => InkWell(
-                  borderRadius: BorderRadius.circular(8.0),
-                  onTap: openContainer,
-                  onLongPress: () {
-                    _showAlbumMenu(context, ref, album, l10n);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(6.0),
-                            child: AlbumCoverMosaic(
-                              albumId: album.id,
-                              fallbackCoverAssetId: album.coverAssetId,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(
-                            4.0,
-                            8.0,
-                            4.0,
-                            4.0,
-                          ),
-                          child: Text(
-                            album.name,
-                            style: Theme.of(context).textTheme.titleMedium,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              return _AlbumGridCard(
+                album: album,
+                autoOpen: _newlyCreatedAlbumId == album.id,
+                onOpened: () {
+                  _newlyCreatedAlbumId = null;
+                },
+                onShowMenu: () => _showAlbumMenu(context, album, l10n),
               );
             },
           );
@@ -219,20 +184,109 @@ class AlbumListScreen extends ConsumerWidget {
             }
 
             await repo.create(name);
-            ref.invalidate(albumListProvider);
-
-            // Route to slide viewer of the newly created album
             final newAlbum = await repo.findByName(name);
-            if (context.mounted && newAlbum != null) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => SlideViewerScreen(album: newAlbum),
-                ),
-              );
+            if (newAlbum != null && mounted) {
+              setState(() {
+                _newlyCreatedAlbumId = newAlbum.id;
+              });
             }
+            ref.invalidate(albumListProvider);
           }
         },
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class _AlbumGridCard extends StatefulWidget {
+  final Album album;
+  final bool autoOpen;
+  final VoidCallback onOpened;
+  final VoidCallback onShowMenu;
+
+  const _AlbumGridCard({
+    required this.album,
+    required this.autoOpen,
+    required this.onOpened,
+    required this.onShowMenu,
+  });
+
+  @override
+  State<_AlbumGridCard> createState() => _AlbumGridCardState();
+}
+
+class _AlbumGridCardState extends State<_AlbumGridCard> {
+  final GlobalKey<OpenContainerState> _containerKey =
+      GlobalKey<OpenContainerState>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.autoOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _triggerOpen();
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _AlbumGridCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.autoOpen && !oldWidget.autoOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _triggerOpen();
+      });
+    }
+  }
+
+  void _triggerOpen() {
+    if (mounted) {
+      _containerKey.currentState?.openContainer();
+      widget.onOpened();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return OpenContainer(
+      key: _containerKey,
+      closedElevation: 2.0,
+      closedShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      closedColor: Theme.of(context).colorScheme.surface,
+      openBuilder: (context, _) => SlideViewerScreen(album: widget.album),
+      closedBuilder: (context, openContainer) => InkWell(
+        borderRadius: BorderRadius.circular(8.0),
+        onTap: openContainer,
+        onLongPress: widget.onShowMenu,
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6.0),
+                  child: AlbumCoverMosaic(
+                    albumId: widget.album.id,
+                    fallbackCoverAssetId: widget.album.coverAssetId,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4.0, 8.0, 4.0, 4.0),
+                child: Text(
+                  widget.album.name,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
