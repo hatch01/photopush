@@ -13,6 +13,11 @@ class CommentSlideViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Scaffold extendBodyBehindAppBar forces content to top of screen.
+    // Ensure padding accounts for toolbar height + status bar.
+    final topPadding =
+        MediaQuery.paddingOf(context).top + kToolbarHeight + 32.0;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -21,7 +26,7 @@ class CommentSlideViewer extends StatelessWidget {
         ).scaffoldBackgroundColor, // Ensure background catches taps
         width: double.infinity,
         height: double.infinity,
-        padding: const EdgeInsets.all(32.0),
+        padding: EdgeInsets.fromLTRB(32.0, topPadding, 32.0, 32.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
