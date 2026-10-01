@@ -165,6 +165,8 @@
               pkg-config
               gtk3
               glib
+              gsettings-desktop-schemas
+              adwaita-icon-theme
               pcre2
               libsecret
               libxkbcommon
@@ -228,9 +230,10 @@
               -Djava.net.preferIPv4Stack=true
             '';
 
-            # Nothing to do here: the Linux app resolves its own bundled native
-            # assets through the engine's RUNPATH, see the note above.
-            shellHook = "";
+            # Set up XDG_DATA_DIRS so GTK/GLib file choosers and portals find GSettings schemas and icon themes
+            shellHook = ''
+              export XDG_DATA_DIRS="${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}:${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}:${pkgs.adwaita-icon-theme}/share''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
+            '';
           };
 
           formatter = pkgs.nixfmt-tree;
