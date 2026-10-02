@@ -1,0 +1,21 @@
+class: Album
+table: albums
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  name: String
+  coverAssetId: UuidValue?
+  slides: List<Slide>?, relation
+  localRev: int, default=0
+  serverRev: int?
+  serverSeq: int?
+  hlcWall: int
+  hlcCounter: int
+  deviceId: String
+  deletedAt: DateTime?
+  pinned: int, default=0
+  createdAt: DateTime, defaultModel=now
+  updatedAt: DateTime, defaultModel=now
+indexes:
+  albums_name_idx:
+    fields: name

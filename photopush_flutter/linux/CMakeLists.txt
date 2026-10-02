@@ -112,6 +112,26 @@ install(DIRECTORY "${NATIVE_ASSETS_DIR}"
    DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
    COMPONENT Runtime)
 
+# The Dart VM resolves the `@Native` externals declared by those native assets
+# with a bare `dlopen("libsqlite3_connection_pool.so")`. glibc resolves such a
+# call against the RUNPATH of the *calling* object, which is the engine, and the
+# engine shipped by the Flutter SDK does not mention its own directory -- so the
+# lookup fails and the client-side database of serverpod never opens. Adding
+# `$ORIGIN` to the copy of the engine installed above is enough. Do it here
+# rather than putting the bundle's lib/ directory on LD_LIBRARY_PATH in the dev
+# shell: the bundled libsqlite3.so is a Dart native asset exporting only the
+# handful of symbols its own bindings need, and any other process of the shell
+# resolving that name (node, the gemini CLI, ...) then dies with
+# "symbol lookup error: undefined symbol: sqlite3_bind_int".
+get_filename_component(FLUTTER_ENGINE_NAME "${FLUTTER_LIBRARY}" NAME)
+install(CODE "
+  execute_process(
+    COMMAND patchelf --add-rpath \$ORIGIN
+            \"${INSTALL_BUNDLE_LIB_DIR}/${FLUTTER_ENGINE_NAME}\"
+    COMMAND_ERROR_IS_FATAL ANY
+  )
+" COMPONENT Runtime)
+
 # Fully re-copy the assets directory on each build to avoid having stale files
 # from a previous install.
 set(FLUTTER_ASSET_DIR_NAME "flutter_assets")
