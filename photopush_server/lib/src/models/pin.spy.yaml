@@ -1,0 +1,20 @@
+class: Pin
+table: pins
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  slideId: UuidValue, relation(parent=slides, onDelete=Cascade)
+  kind: String
+  x: double
+  y: double
+  sizeScale: double, default=1.0
+  color: String, default='black'
+  text: String?
+  targetSlideId: UuidValue?
+  zIndex: int, default=0
+  hlcWall: int
+  hlcCounter: int
+  deviceId: String
+  serverRev: int?
+  deletedAt: DateTime?
+  createdAt: DateTime, defaultModel=now

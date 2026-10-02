@@ -1,0 +1,21 @@
+class: Slide
+table: slides
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  albumId: UuidValue, relation(parent=albums, onDelete=Cascade)
+  kind: String
+  title: String, default=''
+  commentText: String?
+  assetId: UuidValue?, relation(parent=assets)
+  pins: List<Pin>?, relation
+  orderKey: String
+  zPinCounter: int, default=0
+  dirty: int, default=0
+  hlcWall: int
+  hlcCounter: int
+  deviceId: String
+  serverRev: int?
+  deletedAt: DateTime?
+  createdAt: DateTime, defaultModel=now
+  updatedAt: DateTime, defaultModel=now
