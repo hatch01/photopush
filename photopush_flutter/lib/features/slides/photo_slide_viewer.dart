@@ -10,6 +10,7 @@ import 'pin_action_menu.dart';
 import 'pin_bubble_dialog.dart';
 import 'pin_repository.dart';
 import 'pin_settings_screen.dart';
+import 'pin_text_editor_sheet.dart';
 import 'pin_widget.dart';
 
 class PhotoSlideViewer extends ConsumerStatefulWidget {
@@ -195,12 +196,19 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
               1.0,
             );
 
+            // Prompt for text immediately upon pin creation (cancel aborts creation)
+            final text = await PinTextEditorSheet.show(context);
+            if (text == null) {
+              return;
+            }
+
             final pinSettings = ref.read(pinSettingsProvider);
             final pinRepo = ref.read(pinRepositoryProvider);
             await pinRepo.create(
               slideId: widget.slide.id,
               x: x,
               y: y,
+              text: text.trim().isEmpty ? null : text.trim(),
               color: pinSettings.color,
               sizeScale: pinSettings.sizeScale,
             );

@@ -33,6 +33,7 @@ class PinRepository {
     required UuidValue slideId,
     required double x,
     required double y,
+    String? text,
     double sizeScale = 1.0,
     String color = 'black',
   }) async {
@@ -43,7 +44,8 @@ class PinRepository {
     final pin = Pin(
       id: Uuid().v7obj(),
       slideId: slideId,
-      kind: 'neutral',
+      kind: text != null && text.isNotEmpty ? 'text' : 'neutral',
+      text: text,
       x: x,
       y: y,
       sizeScale: sizeScale,

@@ -56,28 +56,41 @@ class PinWidget extends StatelessWidget {
         iconData = Icons.stop_circle; // Replaces the generic square
     }
 
+    // Ensure touch target is at least 48x48 dp to prevent fat-finger misses (RNF-60)
+    const double minTouchTarget = 48.0;
+    final double touchTargetSize = size < minTouchTarget
+        ? minTouchTarget
+        : size;
+
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: pinColor,
-          borderRadius: BorderRadius.circular(4.0),
-          border: Border.all(color: Colors.white, width: 1.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 2.0,
-              offset: const Offset(1, 1),
-            ),
-          ],
-        ),
+      child: SizedBox(
+        width: touchTargetSize,
+        height: touchTargetSize,
         child: Center(
-          child: Icon(
-            iconData,
-            size: size * 0.6,
-            color: pinColor == Colors.white ? Colors.black : Colors.white,
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: pinColor,
+              borderRadius: BorderRadius.circular(4.0),
+              border: Border.all(color: Colors.white, width: 1.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  blurRadius: 2.0,
+                  offset: const Offset(1, 1),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Icon(
+                iconData,
+                size: size * 0.6,
+                color: pinColor == Colors.white ? Colors.black : Colors.white,
+              ),
+            ),
           ),
         ),
       ),
