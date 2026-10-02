@@ -7,9 +7,9 @@ import '../../core/app_limits.dart';
 import '../../l10n/app_localizations.dart';
 import 'asset_repository.dart';
 import 'pin_bubble_dialog.dart';
+import 'pin_edit_sheet.dart';
 import 'pin_repository.dart';
 import 'pin_settings_screen.dart';
-import 'pin_text_editor_sheet.dart';
 import 'pin_widget.dart';
 
 class PhotoSlideViewer extends ConsumerStatefulWidget {
@@ -90,6 +90,44 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
     _transformationController.dispose();
     _animationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _ensurePinVisible(Offset scenePoint, RenderBox renderBox) async {
+    const double sheetHeight = 220.0;
+    final double screenHeight = renderBox.size.height;
+    final double thresholdY = screenHeight - sheetHeight - 40.0;
+
+    final matrix = _transformationController.value;
+    final double currentViewportY =
+        matrix.storage[5] * scenePoint.dy + matrix.storage[13];
+
+    if (currentViewportY > thresholdY) {
+      final double dy = thresholdY - currentViewportY;
+      final Matrix4 targetMatrix = matrix.clone()
+        ..storage[13] = matrix.storage[13] + dy;
+
+      _animation =
+          Matrix4Tween(
+            begin: matrix,
+            end: targetMatrix,
+          ).animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Curves.easeOutCubic,
+            ),
+          );
+
+      void listener() {
+        if (_animation != null) {
+          _transformationController.value = _animation!.value;
+        }
+      }
+
+      _animation!.addListener(listener);
+      await _animationController.forward(from: 0);
+      _animation?.removeListener(listener);
+      _transformationController.value = targetMatrix;
+    }
   }
 
   void _handleDoubleTap() {
@@ -191,42 +229,29 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
               1.0,
             );
 
-            // Prompt for text and optional link immediately upon pin creation (cancel aborts creation)
-            final result = await PinTextEditorSheet.show(
-              context,
-              album: widget.album,
-              currentSlideId: widget.slide.id,
-            );
-            if (result == null) {
-              return;
-            }
-
-            final hasText = result.text.trim().isNotEmpty;
-            final hasLink = result.targetSlideId != null;
-            final String kind;
-            if (hasText && hasLink) {
-              kind = 'textLink';
-            } else if (hasLink) {
-              kind = 'link';
-            } else if (hasText) {
-              kind = 'text';
-            } else {
-              kind = 'neutral';
-            }
-
             final pinSettings = ref.read(pinSettingsProvider);
             final pinRepo = ref.read(pinRepositoryProvider);
-            await pinRepo.create(
+            final newPin = await pinRepo.create(
               slideId: widget.slide.id,
               x: x,
               y: y,
-              text: hasText ? result.text.trim() : null,
-              targetSlideId: result.targetSlideId,
-              kind: kind,
               color: pinSettings.color,
               sizeScale: pinSettings.sizeScale,
             );
             ref.invalidate(slidePinsProvider(widget.slide.id));
+
+            // Auto-pan if the pin would be obscured by the bottom sheet
+            await _ensurePinVisible(scenePoint, renderBox);
+
+            // Open the live editing sheet immediately!
+            if (context.mounted) {
+              await PinEditSheet.show(
+                context,
+                album: widget.album,
+                slide: widget.slide,
+                pin: newPin,
+              );
+            }
           } else {
             if (!_isInteracting &&
                 _transformationController.value.getMaxScaleOnAxis() <= 1.01) {
@@ -289,49 +314,25 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
                                 pin: pin,
                                 onTap: () async {
                                   if (widget.isEditing) {
-                                    final result =
-                                        await PinTextEditorSheet.show(
-                                          context,
-                                          initialText: pin.text,
-                                          initialTargetSlideId:
-                                              pin.targetSlideId,
-                                          album: widget.album,
-                                          currentSlideId: widget.slide.id,
-                                          showDeleteButton: true,
-                                        );
-                                    if (result == null || !context.mounted) {
-                                      return;
-                                    }
-
-                                    final pinRepo = ref.read(
-                                      pinRepositoryProvider,
+                                    final renderBox =
+                                        context.findRenderObject() as RenderBox;
+                                    final scenePoint = Offset(
+                                      pin.x * renderBox.size.width,
+                                      pin.y * renderBox.size.height,
                                     );
-                                    if (result.isDeleted) {
-                                      await pinRepo.moveToTrash(pin.id);
-                                    } else {
-                                      final text = result.text.trim();
-                                      final finalTargetId =
-                                          result.targetSlideId;
-                                      final hasText = text.isNotEmpty;
-                                      final hasLink = finalTargetId != null;
-
-                                      String newKind = 'neutral';
-                                      if (hasText && hasLink) {
-                                        newKind = 'textLink';
-                                      } else if (hasLink) {
-                                        newKind = 'link';
-                                      } else if (hasText) {
-                                        newKind = 'text';
-                                      }
-
-                                      pin.text = hasText ? text : null;
-                                      pin.targetSlideId = finalTargetId;
-                                      pin.kind = newKind;
-                                      await pinRepo.update(pin);
-                                    }
-                                    ref.invalidate(
-                                      slidePinsProvider(widget.slide.id),
+                                    await _ensurePinVisible(
+                                      scenePoint,
+                                      renderBox,
                                     );
+
+                                    if (context.mounted) {
+                                      await PinEditSheet.show(
+                                        context,
+                                        album: widget.album,
+                                        slide: widget.slide,
+                                        pin: pin,
+                                      );
+                                    }
                                   } else {
                                     void navigate() {
                                       if (widget.onNavigateToSlide != null &&
