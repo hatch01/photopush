@@ -52,17 +52,19 @@ class ArchiveService {
         'assetId': slide.assetId?.toString(),
         'orderKey': slide.orderKey,
         'pins': pins
-            .map((pin) => {
-                  'id': pin.id.toString(),
-                  'kind': pin.kind,
-                  'x': pin.x,
-                  'y': pin.y,
-                  'sizeScale': pin.sizeScale,
-                  'color': pin.color,
-                  'text': pin.text,
-                  'targetSlideId': pin.targetSlideId?.toString(),
-                  'zIndex': pin.zIndex,
-                })
+            .map(
+              (pin) => {
+                'id': pin.id.toString(),
+                'kind': pin.kind,
+                'x': pin.x,
+                'y': pin.y,
+                'sizeScale': pin.sizeScale,
+                'color': pin.color,
+                'text': pin.text,
+                'targetSlideId': pin.targetSlideId?.toString(),
+                'zIndex': pin.zIndex,
+              },
+            )
             .toList(),
       });
     }
@@ -104,7 +106,9 @@ class ArchiveService {
 
     // 1. Add album.json
     final manifestBytes = utf8.encode(jsonEncode(manifest));
-    archive.addFile(ArchiveFile('album.json', manifestBytes.length, manifestBytes));
+    archive.addFile(
+      ArchiveFile('album.json', manifestBytes.length, manifestBytes),
+    );
 
     // 2. Add media files
     for (final asset in assetsToPack) {
@@ -278,8 +282,9 @@ class ArchiveService {
       for (final p in pinsJson) {
         final pMap = p as Map<String, dynamic>;
         final oldTargetId = pMap['targetSlideId'] as String?;
-        final newTargetId =
-            oldTargetId != null ? slideIdMap[oldTargetId] : null;
+        final newTargetId = oldTargetId != null
+            ? slideIdMap[oldTargetId]
+            : null;
 
         await Pin.db.insertRow(
           session,

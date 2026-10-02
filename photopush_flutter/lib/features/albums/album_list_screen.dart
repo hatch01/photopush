@@ -97,8 +97,9 @@ class _AlbumListScreenState extends ConsumerState<AlbumListScreen> {
                   );
 
                   final archiveService = ref.read(archiveServiceProvider);
-                  final exportedFile =
-                      await archiveService.exportAlbum(album.id);
+                  final exportedFile = await archiveService.exportAlbum(
+                    album.id,
+                  );
 
                   if (context.mounted) {
                     Navigator.of(context).pop(); // close loader
@@ -108,8 +109,10 @@ class _AlbumListScreenState extends ConsumerState<AlbumListScreen> {
                       (Platform.isLinux ||
                           Platform.isMacOS ||
                           Platform.isWindows)) {
-                    final safeName = album.name
-                        .replaceAll(RegExp(r'[\\/:*?"<>| ]'), '_');
+                    final safeName = album.name.replaceAll(
+                      RegExp(r'[\\/:*?"<>| ]'),
+                      '_',
+                    );
                     final location = await getSaveLocation(
                       suggestedName: '$safeName.photopush',
                       acceptedTypeGroups: [
@@ -199,7 +202,7 @@ class _AlbumListScreenState extends ConsumerState<AlbumListScreen> {
 
       ref.invalidate(albumListProvider);
 
-      if (newAlbum != null && mounted) {
+      if (mounted) {
         setState(() {
           _newlyCreatedAlbumId = newAlbum.id;
         });
