@@ -2,24 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photopush_client/photopush_client.dart';
 import 'slide_repository.dart';
+import 'photo_slide_viewer.dart';
 import 'asset_thumbnail.dart';
 import '../../l10n/app_localizations.dart';
 
 class PinTargetPickerSheet extends ConsumerStatefulWidget {
-  final UuidValue albumId;
+  final Album album;
   final UuidValue currentSlideId;
   final UuidValue? initialTargetSlideId;
 
   const PinTargetPickerSheet({
     super.key,
-    required this.albumId,
+    required this.album,
     required this.currentSlideId,
     this.initialTargetSlideId,
   });
 
   static Future<UuidValue?> show(
     BuildContext context, {
-    required UuidValue albumId,
+    required Album album,
     required UuidValue currentSlideId,
     UuidValue? initialTargetSlideId,
   }) {
@@ -27,7 +28,7 @@ class PinTargetPickerSheet extends ConsumerStatefulWidget {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (context) => PinTargetPickerSheet(
-          albumId: albumId,
+          album: album,
           currentSlideId: currentSlideId,
           initialTargetSlideId: initialTargetSlideId,
         ),
@@ -45,6 +46,7 @@ class _PinTargetPickerSheetState extends ConsumerState<PinTargetPickerSheet> {
   int _currentIndex = 0;
   bool _isGridView = false;
   bool _initializedPage = false;
+  bool _isZoomed = false;
 
   @override
   void initState() {
@@ -61,7 +63,7 @@ class _PinTargetPickerSheetState extends ConsumerState<PinTargetPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final slidesAsync = ref.watch(albumSlidesProvider(widget.albumId));
+    final slidesAsync = ref.watch(albumSlidesProvider(widget.album.id));
 
     return slidesAsync.when(
       data: (slides) {
@@ -108,14 +110,20 @@ class _PinTargetPickerSheetState extends ConsumerState<PinTargetPickerSheet> {
         final safeIndex = _currentIndex.clamp(0, availableSlides.length - 1);
 
         return Scaffold(
+          backgroundColor: Colors.black,
           appBar: AppBar(
+            backgroundColor: Colors.black.withValues(alpha: 0.7),
+            foregroundColor: Colors.white,
+            elevation: 0,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(l10n.pinLinkTitle),
                 Text(
                   'Photo ${safeIndex + 1} / ${availableSlides.length}',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.white70),
                 ),
               ],
             ),
@@ -180,6 +188,9 @@ class _PinTargetPickerSheetState extends ConsumerState<PinTargetPickerSheet> {
                 )
               : PageView.builder(
                   controller: _pageController,
+                  physics: _isZoomed
+                      ? const NeverScrollableScrollPhysics()
+                      : const PageScrollPhysics(),
                   itemCount: availableSlides.length,
                   onPageChanged: (index) {
                     setState(() {
@@ -188,18 +199,19 @@ class _PinTargetPickerSheetState extends ConsumerState<PinTargetPickerSheet> {
                   },
                   itemBuilder: (context, index) {
                     final slide = availableSlides[index];
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Center(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: AssetThumbnail(
-                            assetId: slide.assetId!,
-                            width: double.infinity,
-                            height: double.infinity,
-                          ),
-                        ),
-                      ),
+                    return PhotoSlideViewer(
+                      album: widget.album,
+                      slide: slide,
+                      onTap: () {},
+                      onZoomChanged: (zoomed) {
+                        if (_isZoomed != zoomed) {
+                          setState(() {
+                            _isZoomed = zoomed;
+                          });
+                        }
+                      },
+                      isEditing:
+                          false, // Read mode: renders pins, zoom, no crop
                     );
                   },
                 ),

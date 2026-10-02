@@ -16,14 +16,14 @@ class PinTextEditorResult {
 class PinTextEditorSheet extends StatefulWidget {
   final String? initialText;
   final UuidValue? initialTargetSlideId;
-  final UuidValue? albumId;
+  final Album? album;
   final UuidValue? currentSlideId;
 
   const PinTextEditorSheet({
     super.key,
     this.initialText,
     this.initialTargetSlideId,
-    this.albumId,
+    this.album,
     this.currentSlideId,
   });
 
@@ -31,7 +31,7 @@ class PinTextEditorSheet extends StatefulWidget {
     BuildContext context, {
     String? initialText,
     UuidValue? initialTargetSlideId,
-    UuidValue? albumId,
+    Album? album,
     UuidValue? currentSlideId,
   }) {
     return showModalBottomSheet<PinTextEditorResult?>(
@@ -44,7 +44,7 @@ class PinTextEditorSheet extends StatefulWidget {
         child: PinTextEditorSheet(
           initialText: initialText,
           initialTargetSlideId: initialTargetSlideId,
-          albumId: albumId,
+          album: album,
           currentSlideId: currentSlideId,
         ),
       ),
@@ -73,11 +73,11 @@ class _PinTextEditorSheetState extends State<PinTextEditorSheet> {
   }
 
   Future<void> _pickTarget() async {
-    if (widget.albumId == null || widget.currentSlideId == null) return;
+    if (widget.album == null || widget.currentSlideId == null) return;
 
     final targetId = await PinTargetPickerSheet.show(
       context,
-      albumId: widget.albumId!,
+      album: widget.album!,
       currentSlideId: widget.currentSlideId!,
       initialTargetSlideId: _selectedTargetSlideId,
     );
@@ -115,7 +115,7 @@ class _PinTextEditorSheetState extends State<PinTextEditorSheet> {
               ),
             ),
             const SizedBox(height: 12),
-            if (widget.albumId != null && widget.currentSlideId != null) ...[
+            if (widget.album != null && widget.currentSlideId != null) ...[
               if (_selectedTargetSlideId == null)
                 OutlinedButton.icon(
                   icon: const Icon(Icons.add_link),

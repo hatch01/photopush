@@ -12,7 +12,7 @@ class PinActionMenu {
     BuildContext context,
     WidgetRef ref,
     Pin pin,
-    UuidValue albumId,
+    Album album,
     UuidValue slideId,
   ) async {
     final l10n = AppLocalizations.of(context)!;
@@ -51,7 +51,7 @@ class PinActionMenu {
         context,
         initialText: pin.text,
         initialTargetSlideId: pin.targetSlideId,
-        albumId: albumId,
+        album: album,
         currentSlideId: slideId,
       );
       if (result != null && context.mounted) {

@@ -199,7 +199,7 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
             // Prompt for text and optional link immediately upon pin creation (cancel aborts creation)
             final result = await PinTextEditorSheet.show(
               context,
-              albumId: widget.album.id,
+              album: widget.album,
               currentSlideId: widget.slide.id,
             );
             if (result == null) {
@@ -289,7 +289,7 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
                                     context,
                                     ref,
                                     pin,
-                                    widget.slide.albumId,
+                                    widget.album,
                                     widget.slide.id,
                                   );
                                 } else {
