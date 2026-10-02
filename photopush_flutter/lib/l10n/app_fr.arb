@@ -33,5 +33,8 @@
   "pinTextTitle": "Texte de la punaise",
   "close": "Fermer",
   "goToSlide": "Aller à la diapositive",
-  "ok": "OK"
+  "ok": "OK",
+  "edit": "Modifier",
+  "linkedPhoto": "Photo liée",
+  "change": "Changer"
 }

@@ -147,7 +147,7 @@ class _PinTextEditorSheetState extends State<PinTextEditorSheet> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          l10n.pinEditLink,
+                          l10n.linkedPhoto,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -156,11 +156,11 @@ class _PinTextEditorSheetState extends State<PinTextEditorSheet> {
                       ),
                       TextButton(
                         onPressed: _pickTarget,
-                        child: Text(l10n.pinEditLink),
+                        child: Text(l10n.change),
                       ),
                       IconButton(
                         icon: const Icon(Icons.close, size: 20),
-                        tooltip: 'Supprimer le lien',
+                        tooltip: l10n.delete,
                         onPressed: () {
                           setState(() {
                             _selectedTargetSlideId = null;

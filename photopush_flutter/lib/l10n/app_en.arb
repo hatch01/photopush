@@ -33,5 +33,8 @@
   "pinTextTitle": "Pin text",
   "close": "Close",
   "goToSlide": "Go to slide",
-  "ok": "OK"
+  "ok": "OK",
+  "edit": "Edit",
+  "linkedPhoto": "Linked photo",
+  "change": "Change"
 }

@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photopush_client/photopush_client.dart';
 import 'pin_repository.dart';
 import 'pin_text_editor_sheet.dart';
-import 'pin_target_picker_sheet.dart';
 import '../../l10n/app_localizations.dart';
 
-enum PinAction { addText, addLink, delete }
+enum PinAction { edit, delete }
 
 class PinActionMenu {
   static Future<void> show(
@@ -26,18 +25,9 @@ class PinActionMenu {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.notes),
-              title: Text(
-                pin.text == null ? l10n.pinAddText : l10n.pinEditText,
-              ),
-              onTap: () => Navigator.of(context).pop(PinAction.addText),
-            ),
-            ListTile(
-              leading: const Icon(Icons.link),
-              title: Text(
-                pin.targetSlideId == null ? l10n.pinAddLink : l10n.pinEditLink,
-              ),
-              onTap: () => Navigator.of(context).pop(PinAction.addLink),
+              leading: const Icon(Icons.edit),
+              title: Text(l10n.edit),
+              onTap: () => Navigator.of(context).pop(PinAction.edit),
             ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
@@ -56,7 +46,7 @@ class PinActionMenu {
 
     if (action == PinAction.delete) {
       await pinRepo.moveToTrash(pin.id);
-    } else if (action == PinAction.addText) {
+    } else if (action == PinAction.edit) {
       final result = await PinTextEditorSheet.show(
         context,
         initialText: pin.text,
@@ -80,26 +70,6 @@ class PinActionMenu {
         }
 
         pin.text = hasText ? text : null;
-        pin.targetSlideId = finalTargetId;
-        pin.kind = newKind;
-        await pinRepo.update(pin);
-      }
-    } else if (action == PinAction.addLink) {
-      final targetId = await PinTargetPickerSheet.show(
-        context,
-        albumId: albumId,
-        currentSlideId: slideId,
-      );
-      if (targetId != null && context.mounted) {
-        // RF-50: bascule on/off if same target selected
-        final bool isSameTarget =
-            pin.targetSlideId?.toString() == targetId.toString();
-        final finalTargetId = isSameTarget ? null : targetId;
-
-        String newKind = pin.text != null ? 'textLink' : 'link';
-        if (finalTargetId == null && pin.text != null) newKind = 'text';
-        if (finalTargetId == null && pin.text == null) newKind = 'neutral';
-
         pin.targetSlideId = finalTargetId;
         pin.kind = newKind;
         await pinRepo.update(pin);
