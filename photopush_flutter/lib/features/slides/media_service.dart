@@ -38,7 +38,7 @@ class MediaService {
     // Generate unique ID and determine extension
     final assetId = Uuid().v7obj();
     final ext = p.extension(file.path);
-    final targetFileName = '\${assetId.toString()}$ext';
+    final targetFileName = '${assetId.toString()}$ext';
     final targetPath = p.join(mediaDir.path, targetFileName);
 
     // Copy file to sandbox
