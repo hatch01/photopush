@@ -181,10 +181,9 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
             }
 
             final renderBox = context.findRenderObject() as RenderBox;
-            final viewportPoint = renderBox.globalToLocal(
-              details.globalPosition,
+            final scenePoint = _transformationController.toScene(
+              details.localPosition,
             );
-            final scenePoint = _transformationController.toScene(viewportPoint);
 
             final x = (scenePoint.dx / renderBox.size.width).clamp(0.0, 1.0);
             final y = (scenePoint.dy / renderBox.size.height).clamp(
@@ -263,93 +262,106 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
                     if (mounted) _isInteracting = false;
                   });
                 },
-                child: Center(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.file(
-                        File(asset.localPath!),
-                        fit: BoxFit.contain,
-                        width: double.infinity,
-                        height: double.infinity,
-                      ),
-                      if (pinsAsync.hasValue)
-                        ...pinsAsync.value!.map((pin) {
-                          return Align(
-                            alignment: Alignment(pin.x * 2 - 1, pin.y * 2 - 1),
-                            child: PinWidget(
-                              pin: pin,
-                              onTap: () async {
-                                if (widget.isEditing) {
-                                  final result = await PinTextEditorSheet.show(
-                                    context,
-                                    initialText: pin.text,
-                                    initialTargetSlideId: pin.targetSlideId,
-                                    album: widget.album,
-                                    currentSlideId: widget.slide.id,
-                                    showDeleteButton: true,
-                                  );
-                                  if (result == null || !context.mounted) {
-                                    return;
-                                  }
-
-                                  final pinRepo = ref.read(
-                                    pinRepositoryProvider,
-                                  );
-                                  if (result.isDeleted) {
-                                    await pinRepo.moveToTrash(pin.id);
-                                  } else {
-                                    final text = result.text.trim();
-                                    final finalTargetId = result.targetSlideId;
-                                    final hasText = text.isNotEmpty;
-                                    final hasLink = finalTargetId != null;
-
-                                    String newKind = 'neutral';
-                                    if (hasText && hasLink) {
-                                      newKind = 'textLink';
-                                    } else if (hasLink) {
-                                      newKind = 'link';
-                                    } else if (hasText) {
-                                      newKind = 'text';
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.file(
+                          File(asset.localPath!),
+                          fit: BoxFit.contain,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                        if (pinsAsync.hasValue)
+                          ...pinsAsync.value!.map((pin) {
+                            const double touchTargetSize = 48.0;
+                            return Positioned(
+                              left:
+                                  pin.x * constraints.maxWidth -
+                                  touchTargetSize / 2,
+                              top:
+                                  pin.y * constraints.maxHeight -
+                                  touchTargetSize / 2,
+                              width: touchTargetSize,
+                              height: touchTargetSize,
+                              child: PinWidget(
+                                pin: pin,
+                                onTap: () async {
+                                  if (widget.isEditing) {
+                                    final result =
+                                        await PinTextEditorSheet.show(
+                                          context,
+                                          initialText: pin.text,
+                                          initialTargetSlideId:
+                                              pin.targetSlideId,
+                                          album: widget.album,
+                                          currentSlideId: widget.slide.id,
+                                          showDeleteButton: true,
+                                        );
+                                    if (result == null || !context.mounted) {
+                                      return;
                                     }
 
-                                    pin.text = hasText ? text : null;
-                                    pin.targetSlideId = finalTargetId;
-                                    pin.kind = newKind;
-                                    await pinRepo.update(pin);
-                                  }
-                                  ref.invalidate(
-                                    slidePinsProvider(widget.slide.id),
-                                  );
-                                } else {
-                                  void navigate() {
-                                    if (widget.onNavigateToSlide != null &&
-                                        pin.targetSlideId != null) {
-                                      widget.onNavigateToSlide!(
-                                        pin.targetSlideId!,
-                                      );
-                                    }
-                                  }
-
-                                  if (pin.text != null &&
-                                      pin.text!.isNotEmpty) {
-                                    await PinBubbleDialog.show(
-                                      context,
-                                      pin,
-                                      onNavigate: pin.targetSlideId != null
-                                          ? navigate
-                                          : null,
+                                    final pinRepo = ref.read(
+                                      pinRepositoryProvider,
                                     );
-                                  } else if (pin.targetSlideId != null) {
-                                    navigate();
+                                    if (result.isDeleted) {
+                                      await pinRepo.moveToTrash(pin.id);
+                                    } else {
+                                      final text = result.text.trim();
+                                      final finalTargetId =
+                                          result.targetSlideId;
+                                      final hasText = text.isNotEmpty;
+                                      final hasLink = finalTargetId != null;
+
+                                      String newKind = 'neutral';
+                                      if (hasText && hasLink) {
+                                        newKind = 'textLink';
+                                      } else if (hasLink) {
+                                        newKind = 'link';
+                                      } else if (hasText) {
+                                        newKind = 'text';
+                                      }
+
+                                      pin.text = hasText ? text : null;
+                                      pin.targetSlideId = finalTargetId;
+                                      pin.kind = newKind;
+                                      await pinRepo.update(pin);
+                                    }
+                                    ref.invalidate(
+                                      slidePinsProvider(widget.slide.id),
+                                    );
+                                  } else {
+                                    void navigate() {
+                                      if (widget.onNavigateToSlide != null &&
+                                          pin.targetSlideId != null) {
+                                        widget.onNavigateToSlide!(
+                                          pin.targetSlideId!,
+                                        );
+                                      }
+                                    }
+
+                                    if (pin.text != null &&
+                                        pin.text!.isNotEmpty) {
+                                      await PinBubbleDialog.show(
+                                        context,
+                                        pin,
+                                        onNavigate: pin.targetSlideId != null
+                                            ? navigate
+                                            : null,
+                                      );
+                                    } else if (pin.targetSlideId != null) {
+                                      navigate();
+                                    }
                                   }
-                                }
-                              },
-                            ),
-                          );
-                        }),
-                    ],
-                  ),
+                                },
+                              ),
+                            );
+                          }),
+                      ],
+                    );
+                  },
                 ),
               );
             }
