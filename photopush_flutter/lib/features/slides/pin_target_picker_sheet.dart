@@ -14,10 +14,17 @@ class PinTargetPickerSheet extends ConsumerWidget {
     required this.currentSlideId,
   });
 
-  static Future<UuidValue?> show(BuildContext context, {required UuidValue albumId, required UuidValue currentSlideId}) {
+  static Future<UuidValue?> show(
+    BuildContext context, {
+    required UuidValue albumId,
+    required UuidValue currentSlideId,
+  }) {
     return showModalBottomSheet<UuidValue?>(
       context: context,
-      builder: (context) => PinTargetPickerSheet(albumId: albumId, currentSlideId: currentSlideId),
+      builder: (context) => PinTargetPickerSheet(
+        albumId: albumId,
+        currentSlideId: currentSlideId,
+      ),
     );
   }
 
@@ -41,19 +48,25 @@ class PinTargetPickerSheet extends ConsumerWidget {
             child: slidesAsync.when(
               data: (slides) {
                 // RF-48: exclude current slide
-                final availableSlides = slides.where((s) => s.id != currentSlideId).toList();
-                
+                final availableSlides = slides
+                    .where((s) => s.id != currentSlideId)
+                    .toList();
+
                 if (availableSlides.isEmpty) {
                   return Center(child: Text(l10n.noOtherSlides));
                 }
-                
+
                 return ListView.builder(
                   itemCount: availableSlides.length,
                   itemBuilder: (context, index) {
                     final slide = availableSlides[index];
                     return ListTile(
-                      leading: Text('${index + 1}'), // Should be global index, but list index is ok for now
-                      title: Text(slide.title.isEmpty ? l10n.untitledSlide : slide.title),
+                      leading: Text(
+                        '${index + 1}',
+                      ), // Should be global index, but list index is ok for now
+                      title: Text(
+                        slide.title.isEmpty ? l10n.untitledSlide : slide.title,
+                      ),
                       onTap: () => Navigator.of(context).pop(slide.id),
                     );
                   },

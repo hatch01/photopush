@@ -31,7 +31,9 @@ class PinSettingsNotifier extends Notifier<PinSettings> {
   }
 }
 
-final pinSettingsProvider = NotifierProvider<PinSettingsNotifier, PinSettings>(PinSettingsNotifier.new);
+final pinSettingsProvider = NotifierProvider<PinSettingsNotifier, PinSettings>(
+  PinSettingsNotifier.new,
+);
 
 class PinSettingsScreen extends ConsumerWidget {
   const PinSettingsScreen({super.key});
@@ -76,15 +78,19 @@ class PinSettingsScreen extends ConsumerWidget {
                       color: c.$2,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey,
                         width: isSelected ? 3 : 1,
                       ),
                       boxShadow: [
                         if (isSelected)
                           BoxShadow(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.5),
                             blurRadius: 8,
-                          )
+                          ),
                       ],
                     ),
                   ),
@@ -92,7 +98,10 @@ class PinSettingsScreen extends ConsumerWidget {
               }).toList(),
             ),
             const SizedBox(height: 32),
-            Text('Size (${settings.sizeScale.toStringAsFixed(1)})', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Size (${settings.sizeScale.toStringAsFixed(1)})',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             Slider(
               value: settings.sizeScale,
               min: 1.0,

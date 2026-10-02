@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photopush_client/photopush_client.dart';
+import '../../l10n/app_localizations.dart';
 import 'slide_repository.dart';
 import 'photo_slide_viewer.dart';
+import 'pin_settings_screen.dart';
 
 class FullscreenSlideViewer extends ConsumerStatefulWidget {
   final Album album;
   final int initialIndex;
+  final UuidValue? initialSlideId;
 
   const FullscreenSlideViewer({
     super.key,
     required this.album,
-    required this.initialIndex,
+    this.initialIndex = 0,
+    this.initialSlideId,
   });
 
   @override
@@ -24,6 +28,7 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
   bool _immersiveMode = false;
   bool _isZoomed = false;
   bool _isEditing = false;
+  bool _initializedPage = false;
 
   @override
   void initState() {
@@ -46,6 +51,21 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
     }
   }
 
+  void _navigateToSlide(UuidValue targetSlideId) {
+    final slides = ref.read(albumSlidesProvider(widget.album.id)).value ?? [];
+    final photoSlides = slides
+        .where((s) => s.kind == 'photo' && s.assetId != null)
+        .toList();
+    final targetIndex = photoSlides.indexWhere((s) => s.id == targetSlideId);
+    if (targetIndex != -1 && _pageController.hasClients) {
+      _pageController.animateToPage(
+        targetIndex,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -54,6 +74,7 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final slidesAsync = ref.watch(albumSlidesProvider(widget.album.id));
 
     return Scaffold(
@@ -66,6 +87,25 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
               backgroundColor: Colors.black.withValues(alpha: 0.7),
               foregroundColor: Colors.white,
               elevation: 0,
+              actions: [
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'pin_settings') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const PinSettingsScreen(),
+                        ),
+                      );
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'pin_settings',
+                      child: Text(l10n.pinSettingsTitle),
+                    ),
+                  ],
+                ),
+              ],
             ),
       body: slidesAsync.when(
         data: (slides) {
@@ -74,6 +114,20 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
               .toList();
 
           if (photoSlides.isEmpty) return const SizedBox.shrink();
+
+          if (!_initializedPage && widget.initialSlideId != null) {
+            final targetIndex = photoSlides.indexWhere(
+              (s) => s.id == widget.initialSlideId,
+            );
+            if (targetIndex != -1) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_pageController.hasClients) {
+                  _pageController.jumpToPage(targetIndex);
+                }
+              });
+            }
+            _initializedPage = true;
+          }
 
           return PageView.builder(
             controller: _pageController,
@@ -84,10 +138,12 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
             itemBuilder: (context, index) {
               final slide = photoSlides[index];
               return PhotoSlideViewer(
+                album: widget.album,
                 slide: slide,
                 onTap: _toggleImmersive,
                 onZoomChanged: _onZoomChanged,
                 isEditing: _isEditing,
+                onNavigateToSlide: _navigateToSlide,
               );
             },
           );

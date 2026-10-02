@@ -41,7 +41,7 @@ class _PinTextEditorSheetState extends State<PinTextEditorSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
