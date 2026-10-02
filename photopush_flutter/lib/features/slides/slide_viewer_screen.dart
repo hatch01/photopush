@@ -9,7 +9,6 @@ import 'slide_repository.dart';
 import 'media_service.dart';
 import 'asset_thumbnail.dart';
 import 'fullscreen_slide_viewer.dart';
-import 'pin_settings_screen.dart';
 import '../../core/utils/order_key.dart';
 
 class SlideViewerScreen extends ConsumerWidget {
@@ -65,25 +64,6 @@ class SlideViewerScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(album.name),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'pin_settings') {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const PinSettingsScreen(),
-                  ),
-                );
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'pin_settings',
-                child: Text(l10n.pinSettingsTitle),
-              ),
-            ],
-          ),
-        ],
       ),
       body: slidesAsync.when(
         data: (slides) {

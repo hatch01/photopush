@@ -88,23 +88,18 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
               foregroundColor: Colors.white,
               elevation: 0,
               actions: [
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'pin_settings') {
+                if (_isEditing)
+                  IconButton(
+                    icon: const Icon(Icons.tune),
+                    tooltip: l10n.pinSettingsTitle,
+                    onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => const PinSettingsScreen(),
                         ),
                       );
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'pin_settings',
-                      child: Text(l10n.pinSettingsTitle),
-                    ),
-                  ],
-                ),
+                    },
+                  ),
               ],
             ),
       body: slidesAsync.when(
