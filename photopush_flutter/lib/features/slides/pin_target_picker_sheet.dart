@@ -187,9 +187,7 @@ class _PinTargetPickerSheetState extends ConsumerState<PinTargetPickerSheet> {
               padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
               child: FilledButton.icon(
                 icon: const Icon(Icons.check),
-                label: Text(
-                  '${l10n.ok} (${safeIndex + 1}/${availableSlides.length})',
-                ),
+                label: Text(l10n.ok),
                 onPressed: () {
                   Navigator.of(context).pop(availableSlides[safeIndex].id);
                 },

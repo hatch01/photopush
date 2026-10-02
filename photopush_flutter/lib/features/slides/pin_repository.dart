@@ -34,6 +34,8 @@ class PinRepository {
     required double x,
     required double y,
     String? text,
+    UuidValue? targetSlideId,
+    String? kind,
     double sizeScale = 1.0,
     String color = 'black',
   }) async {
@@ -41,11 +43,18 @@ class PinRepository {
     final currentPins = await listBySlide(slideId);
     final nextZIndex = currentPins.isEmpty ? 0 : currentPins.last.zIndex + 1;
 
+    final determinedKind =
+        kind ??
+        (text != null && text.isNotEmpty
+            ? (targetSlideId != null ? 'textLink' : 'text')
+            : (targetSlideId != null ? 'link' : 'neutral'));
+
     final pin = Pin(
       id: Uuid().v7obj(),
       slideId: slideId,
-      kind: text != null && text.isNotEmpty ? 'text' : 'neutral',
+      kind: determinedKind,
       text: text,
+      targetSlideId: targetSlideId,
       x: x,
       y: y,
       sizeScale: sizeScale,

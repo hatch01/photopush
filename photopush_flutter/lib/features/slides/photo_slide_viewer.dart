@@ -196,10 +196,27 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
               1.0,
             );
 
-            // Prompt for text immediately upon pin creation (cancel aborts creation)
-            final text = await PinTextEditorSheet.show(context);
-            if (text == null) {
+            // Prompt for text and optional link immediately upon pin creation (cancel aborts creation)
+            final result = await PinTextEditorSheet.show(
+              context,
+              albumId: widget.album.id,
+              currentSlideId: widget.slide.id,
+            );
+            if (result == null) {
               return;
+            }
+
+            final hasText = result.text.trim().isNotEmpty;
+            final hasLink = result.targetSlideId != null;
+            final String kind;
+            if (hasText && hasLink) {
+              kind = 'textLink';
+            } else if (hasLink) {
+              kind = 'link';
+            } else if (hasText) {
+              kind = 'text';
+            } else {
+              kind = 'neutral';
             }
 
             final pinSettings = ref.read(pinSettingsProvider);
@@ -208,7 +225,9 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
               slideId: widget.slide.id,
               x: x,
               y: y,
-              text: text.trim().isEmpty ? null : text.trim(),
+              text: hasText ? result.text.trim() : null,
+              targetSlideId: result.targetSlideId,
+              kind: kind,
               color: pinSettings.color,
               sizeScale: pinSettings.sizeScale,
             );

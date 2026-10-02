@@ -57,19 +57,30 @@ class PinActionMenu {
     if (action == PinAction.delete) {
       await pinRepo.moveToTrash(pin.id);
     } else if (action == PinAction.addText) {
-      final text = await PinTextEditorSheet.show(
+      final result = await PinTextEditorSheet.show(
         context,
         initialText: pin.text,
+        initialTargetSlideId: pin.targetSlideId,
+        albumId: albumId,
+        currentSlideId: slideId,
       );
-      if (text != null && context.mounted) {
-        String newKind = pin.targetSlideId != null ? 'textLink' : 'text';
-        if (text.isEmpty && pin.targetSlideId != null) newKind = 'link';
-        if (text.isEmpty && pin.targetSlideId == null) newKind = 'neutral';
+      if (result != null && context.mounted) {
+        final text = result.text.trim();
+        final finalTargetId = result.targetSlideId;
+        final hasText = text.isNotEmpty;
+        final hasLink = finalTargetId != null;
 
-        // Due to a limitation in Serverpod copyWith not easily setting nulls,
-        // we might have to update directly or use the setter. Serverpod Dart client
-        // does support setting null usually.
-        pin.text = text.isEmpty ? null : text;
+        String newKind = 'neutral';
+        if (hasText && hasLink) {
+          newKind = 'textLink';
+        } else if (hasLink) {
+          newKind = 'link';
+        } else if (hasText) {
+          newKind = 'text';
+        }
+
+        pin.text = hasText ? text : null;
+        pin.targetSlideId = finalTargetId;
         pin.kind = newKind;
         await pinRepo.update(pin);
       }
