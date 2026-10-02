@@ -79,6 +79,7 @@ class _PinTextEditorSheetState extends State<PinTextEditorSheet> {
       context,
       albumId: widget.albumId!,
       currentSlideId: widget.currentSlideId!,
+      initialTargetSlideId: _selectedTargetSlideId,
     );
     if (targetId != null && mounted) {
       setState(() {

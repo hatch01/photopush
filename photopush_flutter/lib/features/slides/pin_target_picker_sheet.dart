@@ -8,17 +8,20 @@ import '../../l10n/app_localizations.dart';
 class PinTargetPickerSheet extends ConsumerStatefulWidget {
   final UuidValue albumId;
   final UuidValue currentSlideId;
+  final UuidValue? initialTargetSlideId;
 
   const PinTargetPickerSheet({
     super.key,
     required this.albumId,
     required this.currentSlideId,
+    this.initialTargetSlideId,
   });
 
   static Future<UuidValue?> show(
     BuildContext context, {
     required UuidValue albumId,
     required UuidValue currentSlideId,
+    UuidValue? initialTargetSlideId,
   }) {
     return Navigator.of(context).push<UuidValue?>(
       MaterialPageRoute(
@@ -26,6 +29,7 @@ class PinTargetPickerSheet extends ConsumerStatefulWidget {
         builder: (context) => PinTargetPickerSheet(
           albumId: albumId,
           currentSlideId: currentSlideId,
+          initialTargetSlideId: initialTargetSlideId,
         ),
       ),
     );
@@ -40,6 +44,7 @@ class _PinTargetPickerSheetState extends ConsumerState<PinTargetPickerSheet> {
   late final PageController _pageController;
   int _currentIndex = 0;
   bool _isGridView = false;
+  bool _initializedPage = false;
 
   @override
   void initState() {
@@ -81,6 +86,22 @@ class _PinTargetPickerSheetState extends ConsumerState<PinTargetPickerSheet> {
               ),
             ),
           );
+        }
+
+        // Initialize position on the currently linked image if present
+        if (!_initializedPage && widget.initialTargetSlideId != null) {
+          final targetIndex = availableSlides.indexWhere(
+            (s) => s.id == widget.initialTargetSlideId,
+          );
+          if (targetIndex != -1) {
+            _currentIndex = targetIndex;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (_pageController.hasClients) {
+                _pageController.jumpToPage(targetIndex);
+              }
+            });
+          }
+          _initializedPage = true;
         }
 
         // Clamp index in case availableSlides length changed
