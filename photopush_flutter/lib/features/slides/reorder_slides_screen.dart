@@ -44,6 +44,7 @@ class _ReorderSlidesScreenState extends ConsumerState<ReorderSlidesScreen> {
           _items = currentItems;
 
           return ReorderableListView.builder(
+            buildDefaultDragHandles: false,
             itemCount: currentItems.length,
             onReorderItem: (oldIndex, newIndex) async {
               setState(() {
@@ -187,7 +188,17 @@ class _SlideReorderTile extends ConsumerWidget {
             icon: const Icon(Icons.delete_outline, color: Colors.red),
             onPressed: onDelete,
           ),
-          const Icon(Icons.drag_handle),
+          ReorderableDragStartListener(
+            index: index,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 12.0,
+              ),
+              color: Colors.transparent,
+              child: const Icon(Icons.drag_handle),
+            ),
+          ),
         ],
       ),
     );
