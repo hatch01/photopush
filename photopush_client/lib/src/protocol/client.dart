@@ -19,7 +19,9 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import 'package:serverpod_database/serverpod_database.dart' as _isd;
 import 'protocol.dart' as _il2as5qe;
+import 'package:photopush_client/migrations/migration_registry.dart';
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -328,4 +330,31 @@ class Client extends _isc.ServerpodClientShared {
     'serverpod_auth_idp': modules.serverpod_auth_idp,
     'serverpod_auth_core': modules.serverpod_auth_core,
   };
+
+  /// Creates a new client-side database session for the given path.
+  ///
+  /// The [path] is the file path to the SQLite database file. Since SQLite uses
+  /// WAL mode, note that `[path]-shm` and `[path]-wal` files might also exist
+  /// transiently for the database while the session is open.
+  ///
+  /// If [runMigrations] is true, pending migrations will be applied when
+  /// opening the database. Be careful when setting this to false, as it might
+  /// lead to inconsistencies between the models and the database.
+  ///
+  /// If [isDebugMode] is true, the database integrity will be verified after
+  /// the migrations are applied to provide feedback of possible issues. On a
+  /// Flutter application, this should be set to [kDebugMode].
+  _ida.Future<_isd.ClientDatabaseSession> createSession(
+    String path, {
+    bool runMigrations = true,
+    bool isDebugMode = false,
+  }) async {
+    return await _isd.ClientDatabaseSession.open(
+      path,
+      _il2as5qe.Protocol(),
+      clientMigrations: MigrationRegistry.migrations,
+      runMigrations: runMigrations,
+      isDebugMode: isDebugMode,
+    );
+  }
 }

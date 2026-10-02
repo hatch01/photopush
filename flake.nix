@@ -88,6 +88,29 @@
           androidSdkPath = "${androidSdk}/libexec/android-sdk";
           PWD = builtins.getEnv "PWD";
 
+          # Flutter copies native-asset libraries (serverpod's client-side
+          # database brings `libsqlite3_connection_pool.so` and `libsqlite3.so`)
+          # into the app bundle's `lib/` directory, but the Linux embedder never
+          # adds that directory to the dynamic linker search path. The Dart FFI
+          # lookups then fail with "Failed to load dynamic library". The bundle
+          # lives at `build/linux/<flutter-arch>/<mode>/bundle/lib`.
+          flutterLinuxArch =
+            {
+              x86_64 = "x64";
+              aarch64 = "arm64";
+              riscv64 = "riscv64";
+            }
+            .${pkgs.stdenv.hostPlatform.parsed.cpu.name} or "x64";
+
+          nativeAssetsLibDirs =
+            lib.concatMapStringsSep ":"
+              (mode: "${PWD}/photopush_flutter/build/linux/${flutterLinuxArch}/${mode}/bundle/lib")
+              [
+                "debug"
+                "profile"
+                "release"
+              ];
+
           # A view of the SDK that is identical to `pkgs.flutter` except that
           # packages/flutter_tools/.dart_tool is not linked in.
           #
@@ -212,6 +235,14 @@
             GRADLE_OPTS = ''
               -Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdkPath}/build-tools/34.0.0/aapt2
               -Djava.net.preferIPv4Stack=true
+            '';
+
+            # Make the native-asset libraries bundled next to the Linux app
+            # resolvable by `dlopen`. Prepended so the flutter app started by
+            # `flutter run`/`serverpod start` finds its own bundled `.so` files,
+            # while any pre-existing entries are kept.
+            shellHook = ''
+              export LD_LIBRARY_PATH="${nativeAssetsLibDirs}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             '';
           };
 
