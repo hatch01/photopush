@@ -48,6 +48,10 @@
       }
     }
   },
+  "exportAlbum": "Exporter l'album",
+  "importAlbum": "Importer un album",
+  "exportSuccess": "Album exporté avec succès",
+  "importSuccess": "Album importé avec succès",
   "pinSemanticNeutral": "Punaise {color}",
   "@pinSemanticNeutral": {
     "placeholders": {

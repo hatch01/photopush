@@ -48,6 +48,10 @@
       }
     }
   },
+  "exportAlbum": "Export album",
+  "importAlbum": "Import album",
+  "exportSuccess": "Album exported successfully",
+  "importSuccess": "Album imported successfully",
   "pinSemanticNeutral": "{color} pin",
   "@pinSemanticNeutral": {
     "placeholders": {

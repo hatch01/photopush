@@ -60,7 +60,9 @@ class PinWidget extends StatelessWidget {
 
     // Ensure touch target is at least 48x48 dp to prevent fat-finger misses (RNF-60)
     const double minTouchTarget = 48.0;
-    final double touchTargetSize = size < minTouchTarget ? minTouchTarget : size;
+    final double touchTargetSize = size < minTouchTarget
+        ? minTouchTarget
+        : size;
 
     // RNF-61 / RNF-64 / A-01: Build descriptive screen reader semantics
     String semanticLabel = 'Punaise ${pin.color}';
