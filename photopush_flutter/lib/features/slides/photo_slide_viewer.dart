@@ -6,7 +6,6 @@ import 'package:photopush_client/photopush_client.dart';
 import '../../core/app_limits.dart';
 import '../../l10n/app_localizations.dart';
 import 'asset_repository.dart';
-import 'pin_action_menu.dart';
 import 'pin_bubble_dialog.dart';
 import 'pin_repository.dart';
 import 'pin_settings_screen.dart';
@@ -285,12 +284,45 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
                               pin: pin,
                               onTap: () async {
                                 if (widget.isEditing) {
-                                  await PinActionMenu.show(
+                                  final result = await PinTextEditorSheet.show(
                                     context,
-                                    ref,
-                                    pin,
-                                    widget.album,
-                                    widget.slide.id,
+                                    initialText: pin.text,
+                                    initialTargetSlideId: pin.targetSlideId,
+                                    album: widget.album,
+                                    currentSlideId: widget.slide.id,
+                                    showDeleteButton: true,
+                                  );
+                                  if (result == null || !context.mounted) {
+                                    return;
+                                  }
+
+                                  final pinRepo = ref.read(
+                                    pinRepositoryProvider,
+                                  );
+                                  if (result.isDeleted) {
+                                    await pinRepo.moveToTrash(pin.id);
+                                  } else {
+                                    final text = result.text.trim();
+                                    final finalTargetId = result.targetSlideId;
+                                    final hasText = text.isNotEmpty;
+                                    final hasLink = finalTargetId != null;
+
+                                    String newKind = 'neutral';
+                                    if (hasText && hasLink) {
+                                      newKind = 'textLink';
+                                    } else if (hasLink) {
+                                      newKind = 'link';
+                                    } else if (hasText) {
+                                      newKind = 'text';
+                                    }
+
+                                    pin.text = hasText ? text : null;
+                                    pin.targetSlideId = finalTargetId;
+                                    pin.kind = newKind;
+                                    await pinRepo.update(pin);
+                                  }
+                                  ref.invalidate(
+                                    slidePinsProvider(widget.slide.id),
                                   );
                                 } else {
                                   void navigate() {

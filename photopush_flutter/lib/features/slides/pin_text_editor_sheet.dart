@@ -6,11 +6,18 @@ import '../../l10n/app_localizations.dart';
 class PinTextEditorResult {
   final String text;
   final UuidValue? targetSlideId;
+  final bool isDeleted;
 
   const PinTextEditorResult({
     required this.text,
     this.targetSlideId,
+    this.isDeleted = false,
   });
+
+  factory PinTextEditorResult.deleted() => const PinTextEditorResult(
+    text: '',
+    isDeleted: true,
+  );
 }
 
 class PinTextEditorSheet extends StatefulWidget {
@@ -18,6 +25,7 @@ class PinTextEditorSheet extends StatefulWidget {
   final UuidValue? initialTargetSlideId;
   final Album? album;
   final UuidValue? currentSlideId;
+  final bool showDeleteButton;
 
   const PinTextEditorSheet({
     super.key,
@@ -25,6 +33,7 @@ class PinTextEditorSheet extends StatefulWidget {
     this.initialTargetSlideId,
     this.album,
     this.currentSlideId,
+    this.showDeleteButton = false,
   });
 
   static Future<PinTextEditorResult?> show(
@@ -33,6 +42,7 @@ class PinTextEditorSheet extends StatefulWidget {
     UuidValue? initialTargetSlideId,
     Album? album,
     UuidValue? currentSlideId,
+    bool showDeleteButton = false,
   }) {
     return showModalBottomSheet<PinTextEditorResult?>(
       context: context,
@@ -46,6 +56,7 @@ class PinTextEditorSheet extends StatefulWidget {
           initialTargetSlideId: initialTargetSlideId,
           album: album,
           currentSlideId: currentSlideId,
+          showDeleteButton: showDeleteButton,
         ),
       ),
     );
@@ -174,8 +185,19 @@ class _PinTextEditorSheetState extends State<PinTextEditorSheet> {
               const SizedBox(height: 16),
             ],
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                if (widget.showDeleteButton)
+                  TextButton.icon(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    label: Text(
+                      l10n.delete,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop(PinTextEditorResult.deleted());
+                    },
+                  ),
+                const Spacer(),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(l10n.cancel),
