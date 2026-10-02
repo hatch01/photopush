@@ -17,22 +17,28 @@ void main() {
       expect(third, equals('000002'));
     });
 
-    test('keyFromIndex preserves lexicographical order for first 1000 items', () {
-      final keys = List.generate(1000, (i) => OrderKey.keyFromIndex(i));
-      final sortedKeys = List.of(keys)..sort();
+    test(
+      'keyFromIndex preserves lexicographical order for first 1000 items',
+      () {
+        final keys = List.generate(1000, (i) => OrderKey.keyFromIndex(i));
+        final sortedKeys = List.of(keys)..sort();
 
-      expect(keys, equals(sortedKeys));
-    });
+        expect(keys, equals(sortedKeys));
+      },
+    );
 
-    test('Lexicographical comparison strictly respects integer index ordering', () {
-      final key0 = OrderKey.keyFromIndex(0);
-      final key1 = OrderKey.keyFromIndex(1);
-      final key99 = OrderKey.keyFromIndex(99);
-      final key100 = OrderKey.keyFromIndex(100);
+    test(
+      'Lexicographical comparison strictly respects integer index ordering',
+      () {
+        final key0 = OrderKey.keyFromIndex(0);
+        final key1 = OrderKey.keyFromIndex(1);
+        final key99 = OrderKey.keyFromIndex(99);
+        final key100 = OrderKey.keyFromIndex(100);
 
-      expect(key0.compareTo(key1), lessThan(0));
-      expect(key1.compareTo(key99), lessThan(0));
-      expect(key99.compareTo(key100), lessThan(0));
-    });
+        expect(key0.compareTo(key1), lessThan(0));
+        expect(key1.compareTo(key99), lessThan(0));
+        expect(key99.compareTo(key100), lessThan(0));
+      },
+    );
   });
 }

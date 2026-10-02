@@ -34,15 +34,19 @@ void main() {
       expect(clampedMaxY, equals(1.0));
     });
 
-    test('Normalized coordinates map accurately to Flutter Alignment space [-1, 1]', () {
-      Alignment toAlignment(double x, double y) => Alignment(x * 2 - 1, y * 2 - 1);
+    test(
+      'Normalized coordinates map accurately to Flutter Alignment space [-1, 1]',
+      () {
+        Alignment toAlignment(double x, double y) =>
+            Alignment(x * 2 - 1, y * 2 - 1);
 
-      expect(toAlignment(0.0, 0.0), equals(Alignment.topLeft));
-      expect(toAlignment(0.5, 0.5), equals(Alignment.center));
-      expect(toAlignment(1.0, 1.0), equals(Alignment.bottomRight));
-      expect(toAlignment(0.5, 0.0), equals(Alignment.topCenter));
-      expect(toAlignment(0.0, 0.5), equals(Alignment.centerLeft));
-    });
+        expect(toAlignment(0.0, 0.0), equals(Alignment.topLeft));
+        expect(toAlignment(0.5, 0.5), equals(Alignment.center));
+        expect(toAlignment(1.0, 1.0), equals(Alignment.bottomRight));
+        expect(toAlignment(0.5, 0.0), equals(Alignment.topCenter));
+        expect(toAlignment(0.0, 0.5), equals(Alignment.centerLeft));
+      },
+    );
 
     test('Pin size scale obeys R-04 base 20px formula', () {
       double computeSize(double sizeScale) => 20.0 * sizeScale;
