@@ -93,10 +93,6 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
   }
 
   void _handleDoubleTap() {
-    if (widget.isEditing) {
-      return; // Disable double-tap zoom while in pin edit mode
-    }
-
     final currentMatrix = _transformationController.value;
     final currentScale = currentMatrix.getMaxScaleOnAxis();
 

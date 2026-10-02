@@ -131,7 +131,7 @@ class _FullscreenSlideViewerState extends ConsumerState<FullscreenSlideViewer> {
 
           return PageView.builder(
             controller: _pageController,
-            physics: (_isZoomed || _isEditing)
+            physics: _isZoomed
                 ? const NeverScrollableScrollPhysics()
                 : const PageScrollPhysics(),
             itemCount: photoSlides.length,
