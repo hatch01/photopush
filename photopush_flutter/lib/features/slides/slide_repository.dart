@@ -8,14 +8,18 @@ final slideRepositoryProvider = Provider<SlideRepository>((ref) {
   return SlideRepository(dbSession);
 });
 
-final albumSlidesProvider =
-    FutureProvider.family<List<Slide>, UuidValue>((ref, albumId) async {
+final albumSlidesProvider = FutureProvider.family<List<Slide>, UuidValue>((
+  ref,
+  albumId,
+) async {
   final repo = ref.watch(slideRepositoryProvider);
   return repo.listByAlbum(albumId);
 });
 
-final slidePinCountProvider =
-    FutureProvider.family<int, UuidValue>((ref, slideId) async {
+final slidePinCountProvider = FutureProvider.family<int, UuidValue>((
+  ref,
+  slideId,
+) async {
   final repo = ref.watch(slideRepositoryProvider);
   return repo.countPins(slideId);
 });

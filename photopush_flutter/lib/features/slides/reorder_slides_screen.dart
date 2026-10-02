@@ -155,8 +155,8 @@ class _SlideReorderTile extends ConsumerWidget {
             child: Text(
               '${index + 1}',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
