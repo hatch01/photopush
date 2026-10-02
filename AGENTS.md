@@ -1,7 +1,6 @@
-# Flutter & Serverpod project
+# Photo Push Flutter & Serverpod project
 
-This project is a Flutter app (frontend) backed by a Serverpod server (backend). Always build the app's backend with Serverpod.
-Build for multiple users, use Serverpod's built-in authentication, which is already set up in `lib/server.dart`.
+This project is an offline-first interactive photo album application named **Photo Push**, built with Flutter (frontend) and Serverpod (backend). The core of the application (Phase 0/1) works entirely offline utilizing Serverpod's `ClientDatabaseSession` to store `Album`, `Slide`, `Pin`, and `Asset` models locally in SQLite. The application later extends to multi-device synchronization through the Serverpod backend.
 
 The user starts the server and Flutter app with `serverpod start`. There is no need to check if the server is running: make the changes and call the `serverpod` MCP tools as needed. If the server is not running, an informative error message will be received from the MCP server. Then STOP and ask the user to start it. NEVER start the server yourself. The Flutter app is started along with it, or can be launched from the MCP tool `spawn_flutter_app`.
 
@@ -46,8 +45,6 @@ If the user asks you to test the app:
 3. Use `flutter_driver` (`dart` MCP) to navigate through the app
 
 The app is launched from `photopush_flutter/lib/driver.dart`, which starts the Flutter driver extension with text entry emulation turned off so the app stays usable by hand. To let the driver type, set `enableTextEntryEmulation: true` there and `hot_restart` the app.
-
-IMPORTANT: After building the first version of the app, update this AGENTS.md file with information about the app we're building. KEEP the info about the MCP server and the checklist. Remove this paragraph.
 
 ## Commit Conventions
 
