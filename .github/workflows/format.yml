@@ -18,8 +18,19 @@ jobs:
           flutter-version: '3.44.4'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          cd photopush_server && dart pub get
+          cd ../photopush_client && dart pub get
+          cd ../photopush_flutter && flutter pub get
 
-      - name: Check formatting
+      - name: Check formatting Server
         working-directory: photopush_server
+        run: dart format --set-exit-if-changed .
+
+      - name: Check formatting Client
+        working-directory: photopush_client
+        run: dart format --set-exit-if-changed .
+
+      - name: Check formatting Flutter
+        working-directory: photopush_flutter
         run: dart format --set-exit-if-changed .

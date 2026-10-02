@@ -1,7 +1,6 @@
-# Flutter & Serverpod project
+# Photo Push Flutter & Serverpod project
 
-This project is a Flutter app (frontend) backed by a Serverpod server (backend). Always build the app's backend with Serverpod.
-Build for multiple users, use Serverpod's built-in authentication, which is already set up in `lib/server.dart`.
+This project is an offline-first interactive photo album application named **Photo Push**, built with Flutter (frontend) and Serverpod (backend). The core of the application (Phase 0/1) works entirely offline utilizing Serverpod's `ClientDatabaseSession` to store `Album`, `Slide`, `Pin`, and `Asset` models locally in SQLite. The application later extends to multi-device synchronization through the Serverpod backend.
 
 The user starts the server and Flutter app with `serverpod start`. There is no need to check if the server is running: make the changes and call the `serverpod` MCP tools as needed. If the server is not running, an informative error message will be received from the MCP server. Then STOP and ask the user to start it. NEVER start the server yourself. The Flutter app is started along with it, or can be launched from the MCP tool `spawn_flutter_app`.
 
@@ -32,12 +31,17 @@ Tests need no Docker. `config/test.yaml` sets `database.dataPath`, so Serverpod 
 
 Checklist after doing changes, in this order:
 
+- **ALWAYS run `dart format .`** at the project root before committing to prevent CI format pipeline failures.
 - `dart analyze` (CLI)
-- `dart format` (CLI)
 - `create_migration` and `apply_migrations` (MCP - only if necessary)
 - Do `serverpod` MCP `hot_restart` if required (hot reload is done automatically). Will also hot restart Flutter app
-- Run tests, if applicable (`dart test` in the server package)
+- Run tests, if applicable (`dart test` in the server package, `flutter test` in the flutter package)
 - Check `serverpod` MCP `tail_server_logs` and `tail_flutter_logs` for any issues.
+
+## Pull Request Conventions
+
+When creating PRs with `gh pr create`:
+- PR titles must be based on the branch name (e.g. `feature/phase-0-base` or `feature/phase-1-albums`). Do not use random or single commit summaries as the PR title.
 
 If the user asks you to test the app:
 
@@ -46,8 +50,6 @@ If the user asks you to test the app:
 3. Use `flutter_driver` (`dart` MCP) to navigate through the app
 
 The app is launched from `photopush_flutter/lib/driver.dart`, which starts the Flutter driver extension with text entry emulation turned off so the app stays usable by hand. To let the driver type, set `enableTextEntryEmulation: true` there and `hot_restart` the app.
-
-IMPORTANT: After building the first version of the app, update this AGENTS.md file with information about the app we're building. KEEP the info about the MCP server and the checklist. Remove this paragraph.
 
 ## Commit Conventions
 

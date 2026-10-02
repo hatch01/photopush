@@ -29,11 +29,25 @@ dependencies:
   cupertino_icons: ^1.0.5
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   google_fonts: ^8.1.0
+  path: ^1.9.1
+  path_provider: ^2.1.6
   photopush_client:
     path: ../photopush_client
   serverpod_auth_idp_flutter: 4.0.3
+  serverpod_database: 4.0.3
   serverpod_flutter: 4.0.3
+  flutter_riverpod: ^3.4.3
+  image_picker: ^1.2.3
+  crypto: ^3.0.7
+  uuid: ^4.6.0
+  animations: ^2.2.0
+  archive: ^4.3.0
+  file_selector: ^1.1.0
+  share_plus: ^13.3.0
 
 dev_dependencies:
   # Used for agents to drive the app through the Dart MCP
@@ -51,6 +65,7 @@ dependency_overrides:
 
 # The following section is specific to Flutter.
 flutter:
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

@@ -17,8 +17,16 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
+import 'album.dart' as _iixspifc;
+import 'asset.dart' as _if0dnshd;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'pin.dart' as _iw6bx03f;
+import 'slide.dart' as _ia13r20e;
+export 'album.dart';
+export 'asset.dart';
 export 'greetings/greeting.dart';
+export 'pin.dart';
+export 'slide.dart';
 
 class Protocol extends _is.DatabaseSerializationManager {
   Protocol._();
@@ -28,6 +36,496 @@ class Protocol extends _is.DatabaseSerializationManager {
   static final Protocol _instance = Protocol._().._registerHostProtocols();
 
   static List<_isp.TableDefinition> get targetTableDefinitions => [
+    _isp.TableDefinition(
+      name: 'albums',
+      dartName: 'Album',
+      schema: 'public',
+      module: 'photopush',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'coverAssetId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'localRev',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'serverRev',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'serverSeq',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlcWall',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlcCounter',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deviceId',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deletedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'pinned',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'albums_name_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'name',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'assets',
+      dartName: 'Asset',
+      schema: 'public',
+      module: 'photopush',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sha256',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'localPath',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'remoteUrl',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'mimeType',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'byteSize',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'width',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'height',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'capturedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'originalName',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'syncState',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'assets_sha256_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'sha256',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'pins',
+      dartName: 'Pin',
+      schema: 'public',
+      module: 'photopush',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'slideId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'kind',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'x',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _isp.ColumnDefinition(
+          name: 'y',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sizeScale',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+          columnDefault: '1.0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'color',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'black\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'text',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'targetSlideId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'zIndex',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlcWall',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlcCounter',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deviceId',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'serverRev',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deletedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: '_slidesPinsSlidesId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'pins_fk_0',
+          columns: ['slideId'],
+          referenceTable: 'slides',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'pins_fk_1',
+          columns: ['_slidesPinsSlidesId'],
+          referenceTable: 'slides',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'slides',
+      dartName: 'Slide',
+      schema: 'public',
+      module: 'photopush',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'albumId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'kind',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'title',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'commentText',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'assetId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'orderKey',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'zPinCounter',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'dirty',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlcWall',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlcCounter',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deviceId',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'serverRev',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deletedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: '_albumsSlidesAlbumsId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'slides_fk_0',
+          columns: ['albumId'],
+          referenceTable: 'albums',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'slides_fk_1',
+          columns: ['assetId'],
+          referenceTable: 'assets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'slides_fk_2',
+          columns: ['_albumsSlidesAlbumsId'],
+          referenceTable: 'albums',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [],
+      managed: true,
+    ),
     ..._iais.Protocol.targetTableDefinitions,
     ..._iacs.Protocol.targetTableDefinitions,
     ..._isp.Protocol.targetTableDefinitions,
@@ -60,11 +558,59 @@ class Protocol extends _is.DatabaseSerializationManager {
       }
     }
 
+    if (t == _iixspifc.Album) {
+      return _iixspifc.Album.fromJson(data) as T;
+    }
+    if (t == _if0dnshd.Asset) {
+      return _if0dnshd.Asset.fromJson(data) as T;
+    }
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
+    if (t == _iw6bx03f.Pin) {
+      return _iw6bx03f.Pin.fromJson(data) as T;
+    }
+    if (t == _ia13r20e.Slide) {
+      return _ia13r20e.Slide.fromJson(data) as T;
+    }
+    if (t == _is.getType<_iixspifc.Album?>()) {
+      return (data != null ? _iixspifc.Album.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_if0dnshd.Asset?>()) {
+      return (data != null ? _if0dnshd.Asset.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_iw6bx03f.Pin?>()) {
+      return (data != null ? _iw6bx03f.Pin.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ia13r20e.Slide?>()) {
+      return (data != null ? _ia13r20e.Slide.fromJson(data) : null) as T;
+    }
+    if (t == List<_ia13r20e.Slide>) {
+      return (data as List).map((e) => deserialize<_ia13r20e.Slide>(e)).toList()
+          as T;
+    }
+    if (t == _is.getType<List<_ia13r20e.Slide>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_ia13r20e.Slide>(e))
+                    .toList()
+              : null)
+          as T;
+    }
+    if (t == List<_iw6bx03f.Pin>) {
+      return (data as List).map((e) => deserialize<_iw6bx03f.Pin>(e)).toList()
+          as T;
+    }
+    if (t == _is.getType<List<_iw6bx03f.Pin>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_iw6bx03f.Pin>(e))
+                    .toList()
+              : null)
+          as T;
     }
     try {
       return _iais.Protocol().deserialize<T>(data, t);
@@ -80,7 +626,11 @@ class Protocol extends _is.DatabaseSerializationManager {
 
   static String? getClassNameForType(Type type) {
     return switch (type) {
+      _iixspifc.Album => 'Album',
+      _if0dnshd.Asset => 'Asset',
       _izw8z7ou.Greeting => 'Greeting',
+      _iw6bx03f.Pin => 'Pin',
+      _ia13r20e.Slide => 'Slide',
       _ => null,
     };
   }
@@ -95,8 +645,16 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
 
     switch (data) {
+      case _iixspifc.Album():
+        return 'Album';
+      case _if0dnshd.Asset():
+        return 'Asset';
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _iw6bx03f.Pin():
+        return 'Pin';
+      case _ia13r20e.Slide():
+        return 'Slide';
     }
     className = _iais.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -123,8 +681,20 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName is! String) {
       return super.deserializeByClassName(data);
     }
+    if (dataClassName == 'Album') {
+      return deserialize<_iixspifc.Album>(data['data']);
+    }
+    if (dataClassName == 'Asset') {
+      return deserialize<_if0dnshd.Asset>(data['data']);
+    }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
+    }
+    if (dataClassName == 'Pin') {
+      return deserialize<_iw6bx03f.Pin>(data['data']);
+    }
+    if (dataClassName == 'Slide') {
+      return deserialize<_ia13r20e.Slide>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
@@ -165,6 +735,16 @@ class Protocol extends _is.DatabaseSerializationManager {
       if (table != null) {
         return table;
       }
+    }
+    switch (t) {
+      case _iixspifc.Album:
+        return _iixspifc.Album.t;
+      case _if0dnshd.Asset:
+        return _if0dnshd.Asset.t;
+      case _iw6bx03f.Pin:
+        return _iw6bx03f.Pin.t;
+      case _ia13r20e.Slide:
+        return _ia13r20e.Slide.t;
     }
     return null;
   }
