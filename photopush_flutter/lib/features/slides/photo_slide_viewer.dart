@@ -181,12 +181,13 @@ class _PhotoSlideViewerState extends ConsumerState<PhotoSlideViewer>
             }
 
             final renderBox = context.findRenderObject() as RenderBox;
-            final localPosition = renderBox.globalToLocal(
+            final viewportPoint = renderBox.globalToLocal(
               details.globalPosition,
             );
+            final scenePoint = _transformationController.toScene(viewportPoint);
 
-            final x = (localPosition.dx / renderBox.size.width).clamp(0.0, 1.0);
-            final y = (localPosition.dy / renderBox.size.height).clamp(
+            final x = (scenePoint.dx / renderBox.size.width).clamp(0.0, 1.0);
+            final y = (scenePoint.dy / renderBox.size.height).clamp(
               0.0,
               1.0,
             );
