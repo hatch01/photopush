@@ -41,12 +41,11 @@ class PhotoPushHomePage extends StatelessWidget {
       appBar: AppBar(title: const Text('PhotoPush'), centerTitle: true),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(24),
               child: Image.asset(
-                'assets/images/logo.png',
+                'assets/logo.png',
                 width: 120,
                 height: 120,
                 fit: BoxFit.contain,

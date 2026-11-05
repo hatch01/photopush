@@ -35,6 +35,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   uuid: ^4.6.0
+  path: ^1.9.1
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:
@@ -56,27 +58,27 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
+    - assets/logo.png
 
 flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
   background_color_ios: "#121212"
-  image_path: "assets/icon/app_icon.png"
+  image_path: "assets/logo.png"
   min_sdk_android: 21
   web:
     generate: true
-    image_path: "assets/icon/app_icon.png"
+    image_path: "assets/logo.png"
     background_color: "#121212"
     theme_color: "#121212"
   windows:
     generate: true
-    image_path: "assets/icon/app_icon.png"
+    image_path: "assets/logo.png"
     icon_size: 48
   macos:
     generate: true
-    image_path: "assets/icon/app_icon.png"
+    image_path: "assets/logo.png"
   linux:
     generate: true
-    image_path: "assets/icon/app_icon.png"
+    image_path: "assets/logo.png"

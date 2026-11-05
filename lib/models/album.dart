@@ -174,7 +174,7 @@ class Album {
 
   Album copyWith({
     int? version,
-    String? id,
+    Object? id = _sentinel,
     String? name,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -183,7 +183,7 @@ class Album {
   }) {
     return Album(
       version: version ?? this.version,
-      id: id ?? this.id,
+      id: identical(id, _sentinel) ? this.id : id as String?,
       name: name ?? this.name,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
