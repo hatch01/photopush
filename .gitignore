@@ -5,7 +5,21 @@
 # Pubspec overrides
 pubspec_overrides.yaml
 
-# Agents
+# Flutter / Dart
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+
+# IDE & Editor
+.idea/
+*.iml
+*.ipr
+*.iws
+.metadata
+
+# Agents & Tooling
 .dart_skills/
 .agents/
 .claude/
@@ -15,14 +29,30 @@ pubspec_overrides.yaml
 .codex/
 .mcp.json
 
-# Serverpod Cloud CLI
-.scloud/
+# Direnv & Nix build results
 /.direnv
-
-# Nix build results
 result
 result-*
 !flake.lock
 
-# serverpod_cli unpacked into the dev shell by the flake
-.serverpod-cli/
+# Android build artifacts
+**/android/.gradle/
+**/android/**/build/
+**/android/local.properties
+**/android/captures/
+**/android/**/GeneratedPluginRegistrant.java
+
+# iOS / macOS build artifacts
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+**/ios/**/xcuserdata/
+**/ios/**/DerivedData/
+**/macos/**/Pods/
+**/macos/**/.symlinks/
+**/macos/**/xcuserdata/
+**/macos/**/DerivedData/
+macos/Flutter/ephemeral/
+ios/Flutter/ephemeral/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/

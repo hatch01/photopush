@@ -36,39 +36,10 @@
         "type": "github"
       }
     },
-    "nixpkgs-patch-serverpod-cli-bump": {
-      "flake": false,
-      "locked": {
-        "narHash": "sha256-uP7NlhO76eYQ2MO3pDzrsY97ZqCw8dfpm7f8gH9GfoM=",
-        "type": "file",
-        "url": "https://github.com/NixOS/nixpkgs/commit/10c3b3443933fd84f9832fd03308a3f4ad7789ba.diff"
-      },
-      "original": {
-        "type": "file",
-        "url": "https://github.com/NixOS/nixpkgs/commit/10c3b3443933fd84f9832fd03308a3f4ad7789ba.diff"
-      }
-    },
-    "nixpkgs-patcher": {
-      "locked": {
-        "lastModified": 1789143781,
-        "narHash": "sha256-WFr3wYdhSEJd/nQyJuETd6dcS08Exc+qoZWJ2tHM/gg=",
-        "owner": "gepbird",
-        "repo": "nixpkgs-patcher",
-        "rev": "da7c09e478f552c3a9ebb78b2f68426c1855fd81",
-        "type": "github"
-      },
-      "original": {
-        "owner": "gepbird",
-        "repo": "nixpkgs-patcher",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
-        "nixpkgs": "nixpkgs",
-        "nixpkgs-patch-serverpod-cli-bump": "nixpkgs-patch-serverpod-cli-bump",
-        "nixpkgs-patcher": "nixpkgs-patcher"
+        "nixpkgs": "nixpkgs"
       }
     }
   },
