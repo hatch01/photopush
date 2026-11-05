@@ -8,6 +8,6 @@ void main() {
 
     expect(find.text('PhotoPush'), findsOneWidget);
     expect(find.text('Bienvenue dans PhotoPush'), findsOneWidget);
-    expect(find.byIcon(Icons.photo_library_outlined), findsOneWidget);
+    expect(find.byType(Image), findsOneWidget);
   });
 }
