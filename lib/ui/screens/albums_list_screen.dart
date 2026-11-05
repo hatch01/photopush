@@ -7,6 +7,7 @@ import '../widgets/create_album_dialog.dart';
 import '../widgets/delete_album_dialog.dart';
 import '../widgets/empty_albums_view.dart';
 import '../widgets/rename_album_dialog.dart';
+import 'album_detail_screen.dart';
 
 /// The main screen displaying the list of all photo albums.
 class AlbumsListScreen extends StatefulWidget {
@@ -310,18 +311,16 @@ class _AlbumsListScreenState extends State<AlbumsListScreen> {
               key: ValueKey(result.albumName),
               result: result,
               controller: _controller,
-              onTap: () {
+              onTap: () async {
                 if (result is AlbumLoadSuccess) {
-                  // Navigation vers la visionneuse/éditeur (US-2/US-3/US-4)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Ouverture de l\'album "${result.album.name}"',
-                      ),
-                      duration: const Duration(seconds: 1),
-                      behavior: SnackBarBehavior.floating,
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => AlbumDetailScreen(album: result.album),
                     ),
                   );
+                  if (mounted) {
+                    await _controller.loadAlbums();
+                  }
                 }
               },
               onRename: () => _handleRenameAlbum(result.albumName),
