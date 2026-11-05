@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'controllers/albums_controller.dart';
+import 'ui/screens/albums_list_screen.dart';
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const PhotoPushApp());
 }
 
 class PhotoPushApp extends StatelessWidget {
-  const PhotoPushApp({super.key});
+  const PhotoPushApp({super.key, this.controller});
+
+  final AlbumsController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -27,45 +33,7 @@ class PhotoPushApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: ThemeMode.dark,
-      home: const PhotoPushHomePage(),
-    );
-  }
-}
-
-class PhotoPushHomePage extends StatelessWidget {
-  const PhotoPushHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('PhotoPush'), centerTitle: true),
-      body: Center(
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Image.asset(
-                'assets/logo.png',
-                width: 120,
-                height: 120,
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Bienvenue dans PhotoPush',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Albums photo interactifs hors ligne',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
+      home: AlbumsListScreen(controller: controller),
     );
   }
 }

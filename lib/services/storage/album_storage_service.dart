@@ -122,7 +122,7 @@ class AlbumStorageService {
     final baseDir = await _baseDirectoryResolver();
     final albumsDir = Directory(p.join(baseDir.path, albumsFolderName));
     if (!albumsDir.existsSync()) {
-      await albumsDir.create(recursive: true);
+      albumsDir.createSync(recursive: true);
     }
     return albumsDir;
   }
@@ -145,7 +145,7 @@ class AlbumStorageService {
     if (!root.existsSync()) return false;
 
     final targetNormalized = albumName.trim().toLowerCase();
-    await for (final entity in root.list(followLinks: false)) {
+    for (final entity in root.listSync(followLinks: false)) {
       if (entity is Directory) {
         final currentName = p.basename(entity.path).toLowerCase();
         if (currentName == targetNormalized) {
@@ -178,19 +178,19 @@ class AlbumStorageService {
             'Cannot rename album to "$sanitizedName" because a folder with that name already exists.',
           );
         }
-        await oldDir.rename(newDir.path);
+        oldDir.renameSync(newDir.path);
       }
     }
 
     final albumDir = await getAlbumDirectory(sanitizedName);
     if (!albumDir.existsSync()) {
-      await albumDir.create(recursive: true);
+      albumDir.createSync(recursive: true);
     }
 
     // Ensure images sub-folder exists
     final imagesDir = Directory(p.join(albumDir.path, imagesFolderName));
     if (!imagesDir.existsSync()) {
-      await imagesDir.create(recursive: true);
+      imagesDir.createSync(recursive: true);
     }
 
     final jsonContent = const JsonEncoder.withIndent('  ')
@@ -201,10 +201,10 @@ class AlbumStorageService {
 
     try {
       // Step 1: Write to temporary file with flush: true
-      await tmpFile.writeAsString(jsonContent, flush: true);
+      tmpFile.writeAsStringSync(jsonContent, flush: true);
 
       // Step 2: Atomic rename
-      await tmpFile.rename(targetFile.path);
+      tmpFile.renameSync(targetFile.path);
     } catch (e, st) {
       developer.log(
         'Failed atomic save for album "${album.name}"',
@@ -214,7 +214,7 @@ class AlbumStorageService {
       // Clean up tmp file if it still exists
       if (tmpFile.existsSync()) {
         try {
-          await tmpFile.delete();
+          tmpFile.deleteSync();
         } catch (_) {}
       }
       rethrow;
@@ -243,11 +243,11 @@ class AlbumStorageService {
             'Recovering album "$folderName" from dangling .tmp file',
           );
           try {
-            content = await tmpFile.readAsString();
-            final json = jsonDecode(content);
+            content = tmpFile.readAsStringSync();
+            final dynamic json = jsonDecode(content);
             if (json is Map<String, dynamic>) {
               // Recovery valid: restore to album.json
-              await tmpFile.rename(targetFile.path);
+              tmpFile.renameSync(targetFile.path);
               final album = Album.fromJson(json);
               return AlbumLoadSuccess(album, directoryPath: albumDir.path);
             }
@@ -269,7 +269,7 @@ class AlbumStorageService {
       }
 
       // Read target file
-      content = await targetFile.readAsString();
+      content = targetFile.readAsStringSync();
       final dynamic decoded = jsonDecode(content);
 
       if (decoded is! Map<String, dynamic>) {
@@ -283,7 +283,7 @@ class AlbumStorageService {
       // Clean up dangling .tmp file if an old one remained from a previous run
       if (tmpFile.existsSync()) {
         try {
-          await tmpFile.delete();
+          tmpFile.deleteSync();
         } catch (_) {}
       }
 
@@ -298,12 +298,12 @@ class AlbumStorageService {
       // Attempt fallback recovery from .tmp if target was corrupted
       if (tmpFile.existsSync() && tmpFile.lengthSync() > 0) {
         try {
-          final tmpContent = await tmpFile.readAsString();
+          final tmpContent = tmpFile.readAsStringSync();
           final dynamic tmpDecoded = jsonDecode(tmpContent);
           if (tmpDecoded is Map<String, dynamic>) {
             final recoveredAlbum = Album.fromJson(tmpDecoded);
             // Restore tmp over corrupt target
-            await tmpFile.rename(targetFile.path);
+            tmpFile.renameSync(targetFile.path);
             return AlbumLoadSuccess(
               recoveredAlbum,
               directoryPath: albumDir.path,
@@ -350,7 +350,7 @@ class AlbumStorageService {
   Future<void> deleteAlbum(String albumName) async {
     final albumDir = await getAlbumDirectory(albumName);
     if (albumDir.existsSync()) {
-      await albumDir.delete(recursive: true);
+      albumDir.deleteSync(recursive: true);
     }
   }
 
@@ -381,10 +381,10 @@ class AlbumStorageService {
       throw StateError('An album with name "$newName" already exists.');
     }
 
-    await newDir.create(recursive: true);
+    newDir.createSync(recursive: true);
 
     // Copy all contents (images, cover, etc.) except album.json and album.json.tmp
-    await for (final entity in sourceDir.list(recursive: true)) {
+    for (final entity in sourceDir.listSync(recursive: true)) {
       final relativePath = p.relative(entity.path, from: sourceDir.path);
       final destPath = p.join(newDir.path, relativePath);
 
@@ -393,10 +393,10 @@ class AlbumStorageService {
       }
 
       if (entity is Directory) {
-        await Directory(destPath).create(recursive: true);
+        Directory(destPath).createSync(recursive: true);
       } else if (entity is File) {
-        await Directory(p.dirname(destPath)).create(recursive: true);
-        await entity.copy(destPath);
+        Directory(p.dirname(destPath)).createSync(recursive: true);
+        entity.copySync(destPath);
       }
     }
 
