@@ -243,6 +243,32 @@ class AlbumDetailController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Adds a new pin to the current slide.
+  Future<void> addPin(Pin pin) async {
+    if (currentSlide == null) return;
+    final newPins = List<Pin>.from(currentSlide!.pins)..add(pin);
+    final updatedSlide = currentSlide!.copyWith(pins: newPins);
+    await _replaceCurrentSlide(updatedSlide);
+  }
+
+  /// Updates an existing pin on the current slide.
+  Future<void> updatePin(Pin pin) async {
+    if (currentSlide == null) return;
+    final newPins = currentSlide!.pins
+        .map((p) => p.id == pin.id ? pin : p)
+        .toList();
+    final updatedSlide = currentSlide!.copyWith(pins: newPins);
+    await _replaceCurrentSlide(updatedSlide);
+  }
+
+  /// Removes a pin from the current slide.
+  Future<void> deletePin(String pinId) async {
+    if (currentSlide == null) return;
+    final newPins = currentSlide!.pins.where((p) => p.id != pinId).toList();
+    final updatedSlide = currentSlide!.copyWith(pins: newPins);
+    await _replaceCurrentSlide(updatedSlide);
+  }
+
   Future<void> _replaceCurrentSlide(Slide updatedSlide) async {
     final newSlides = List<Slide>.from(slides);
     newSlides[_currentIndex] = updatedSlide;
