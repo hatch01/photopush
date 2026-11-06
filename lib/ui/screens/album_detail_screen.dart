@@ -26,6 +26,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
 
   bool _isImmersive = false;
   bool _showArrows = false;
+  bool _isImageZoomed = false;
   Timer? _arrowsTimer;
 
   @override
@@ -364,6 +365,9 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
               ? Stack(
                   children: [
                     PageView.builder(
+                      physics: _isImageZoomed
+                          ? const NeverScrollableScrollPhysics()
+                          : const PageScrollPhysics(),
                       controller: _pageController,
                       onPageChanged: _onPageChanged,
                       itemBuilder: (context, index) {
@@ -494,6 +498,12 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
       controller: _controller,
       onToggleComment: _controller.toggleCommentView,
       onTapBackground: _toggleImmersiveMode,
+      onZoomChanged: (isZoomed) {
+        // Only trigger rebuild if value actually changed
+        if (_isImageZoomed != isZoomed && mounted) {
+          setState(() => _isImageZoomed = isZoomed);
+        }
+      },
     );
   }
 

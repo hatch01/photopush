@@ -16,12 +16,14 @@ class PhotoSlideView extends StatefulWidget {
     required this.controller,
     required this.onToggleComment,
     this.onTapBackground,
+    this.onZoomChanged,
   });
 
   final Slide slide;
   final AlbumDetailController controller;
   final VoidCallback onToggleComment;
   final VoidCallback? onTapBackground;
+  final ValueChanged<bool>? onZoomChanged;
 
   @override
   State<PhotoSlideView> createState() => _PhotoSlideViewState();
@@ -29,12 +31,29 @@ class PhotoSlideView extends StatefulWidget {
 
 class _PhotoSlideViewState extends State<PhotoSlideView> {
   bool _pinsVisible = true;
+  bool _isZoomed = false;
   final TransformationController _transformationController =
       TransformationController();
   TapDownDetails? _doubleTapDetails;
 
   @override
+  void initState() {
+    super.initState();
+    _transformationController.addListener(_onTransformationChanged);
+  }
+
+  void _onTransformationChanged() {
+    // Check if the scale is greater than 1.0 (with a small epsilon for float inaccuracy)
+    final isZoomed = _transformationController.value.getMaxScaleOnAxis() > 1.01;
+    if (isZoomed != _isZoomed) {
+      _isZoomed = isZoomed;
+      widget.onZoomChanged?.call(_isZoomed);
+    }
+  }
+
+  @override
   void dispose() {
+    _transformationController.removeListener(_onTransformationChanged);
     _transformationController.dispose();
     super.dispose();
   }
