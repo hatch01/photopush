@@ -146,6 +146,10 @@ class _PhotoSlideViewState extends State<PhotoSlideView> {
                       transformationController: _transformationController,
                       minScale: 1.0,
                       maxScale: 6.0,
+                      clipBehavior: Clip.none,
+                      boundaryMargin: EdgeInsets.all(
+                        MediaQuery.of(context).size.height,
+                      ), // Allow panning outside the strict constraints
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           return GestureDetector(
