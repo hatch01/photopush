@@ -150,6 +150,14 @@ class _PhotoSlideViewState extends State<PhotoSlideView> {
                       boundaryMargin: EdgeInsets.all(
                         MediaQuery.of(context).size.height,
                       ), // Allow panning outside the strict constraints
+                      onInteractionEnd: (details) {
+                        if (_transformationController.value
+                                .getMaxScaleOnAxis() <=
+                            1.01) {
+                          // Recentre automatiquement l'image si l'utilisateur dézoome au max
+                          _transformationController.value = Matrix4.identity();
+                        }
+                      },
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           return GestureDetector(
