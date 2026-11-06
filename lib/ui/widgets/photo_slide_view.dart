@@ -55,8 +55,11 @@ class _PhotoSlideViewState extends State<PhotoSlideView> {
 
     final dynamic result = await showDialog(
       context: context,
-      builder: (ctx) =>
-          PinEditorDialog(pin: pin, availableSlides: availableTargets),
+      builder: (ctx) => PinEditorDialog(
+        pin: pin,
+        availableSlides: availableTargets,
+        isNew: isNew,
+      ),
     );
 
     if (result == null) return; // Cancelled
