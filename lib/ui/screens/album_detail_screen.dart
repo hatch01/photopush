@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../controllers/album_detail_controller.dart';
 import '../../models/models.dart';
@@ -19,20 +22,90 @@ class AlbumDetailScreen extends StatefulWidget {
 
 class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   late final AlbumDetailController _controller;
+  late PageController _pageController;
+
+  bool _isImmersive = false;
+  bool _showArrows = false;
+  Timer? _arrowsTimer;
 
   @override
   void initState() {
     super.initState();
     _controller =
         widget.controller ?? AlbumDetailController(initialAlbum: widget.album);
+
+    final initialPage = _controller.hasSlides
+        ? 1000 * _controller.slides.length + _controller.currentIndex
+        : 0;
+    _pageController = PageController(initialPage: initialPage);
+
+    _controller.addListener(_onControllerStateChanged);
   }
 
   @override
   void dispose() {
+    _controller.removeListener(_onControllerStateChanged);
     if (widget.controller == null) {
       _controller.dispose();
     }
+    _pageController.dispose();
+    _arrowsTimer?.cancel();
+    if (_isImmersive) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: SystemUiOverlay.values,
+      );
+    }
     super.dispose();
+  }
+
+  void _onControllerStateChanged() {
+    if (!mounted) return;
+    final currentRealIndex = _pageController.hasClients
+        ? _pageController.page?.round()
+        : 0;
+    if (currentRealIndex != null && _controller.hasSlides) {
+      final normalizedIndex = currentRealIndex % _controller.slides.length;
+      if (normalizedIndex != _controller.currentIndex) {
+        final offset = _controller.currentIndex - normalizedIndex;
+        _pageController.jumpToPage(currentRealIndex + offset);
+      }
+    }
+  }
+
+  void _onPageChanged(int index) {
+    if (!_controller.hasSlides) return;
+    final normalizedIndex = index % _controller.slides.length;
+    if (_controller.currentIndex != normalizedIndex) {
+      _controller.goToSlide(normalizedIndex);
+      _triggerArrowsFading();
+    }
+  }
+
+  void _toggleImmersiveMode() {
+    setState(() {
+      _isImmersive = !_isImmersive;
+      if (_isImmersive) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      } else {
+        SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.manual,
+          overlays: SystemUiOverlay.values,
+        );
+      }
+    });
+  }
+
+  void _triggerArrowsFading() {
+    if (!_isImmersive && _controller.slides.length > 1) {
+      setState(() => _showArrows = true);
+      _arrowsTimer?.cancel();
+      _arrowsTimer = Timer(const Duration(seconds: 1), () {
+        if (mounted) {
+          setState(() => _showArrows = false);
+        }
+      });
+    }
   }
 
   Future<void> _handleAddSlide() async {
@@ -232,55 +305,131 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
         final hasSlides = _controller.hasSlides;
 
         return Scaffold(
-          appBar: AppBar(
-            title: InkWell(
-              onTap: hasSlides ? _handleEditTitle : null,
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      slide != null ? slide.title : _controller.album.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+          backgroundColor: Colors.black,
+          appBar: _isImmersive
+              ? null
+              : AppBar(
+                  title: InkWell(
+                    onTap: hasSlides ? _handleEditTitle : null,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            slide != null
+                                ? slide.title
+                                : _controller.album.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (hasSlides)
+                            Text(
+                              'Diapositive ${_controller.currentIndex + 1} / ${_controller.slides.length}',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                    if (hasSlides)
-                      Text(
-                        'Diapositive ${_controller.currentIndex + 1} / ${_controller.slides.length}',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
+                  ),
+                  actions: [
+                    if (slide != null && slide.isPhoto && slide.hasComment)
+                      IconButton(
+                        icon: Icon(
+                          _controller.showCommentView
+                              ? Icons.photo_outlined
+                              : Icons.notes_outlined,
                         ),
+                        tooltip: _controller.showCommentView
+                            ? 'Voir la photo'
+                            : 'Voir le commentaire',
+                        onPressed: _controller.toggleCommentView,
+                      ),
+                    if (slide != null)
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        tooltip: 'Supprimer la diapositive',
+                        onPressed: _handleDeleteSlide,
                       ),
                   ],
                 ),
-              ),
-            ),
-            actions: [
-              if (slide != null && slide.isPhoto && slide.hasComment)
-                IconButton(
-                  icon: Icon(
-                    _controller.showCommentView
-                        ? Icons.photo_outlined
-                        : Icons.notes_outlined,
-                  ),
-                  tooltip: _controller.showCommentView
-                      ? 'Voir la photo'
-                      : 'Voir le commentaire',
-                  onPressed: _controller.toggleCommentView,
-                ),
-              if (slide != null)
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  tooltip: 'Supprimer la diapositive',
-                  onPressed: _handleDeleteSlide,
-                ),
-            ],
-          ),
-          body: hasSlides ? _buildSlideBody(slide!) : _buildEmptyAlbumBody(),
-          bottomNavigationBar: hasSlides ? _buildBottomBar() : null,
+          body: hasSlides
+              ? Stack(
+                  children: [
+                    PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: _onPageChanged,
+                      itemBuilder: (context, index) {
+                        final normalizedIndex =
+                            index % _controller.slides.length;
+                        final currentSlide =
+                            _controller.slides[normalizedIndex];
+                        return _buildSlideBody(currentSlide);
+                      },
+                    ),
+
+                    // Fading Arrows
+                    if (_showArrows &&
+                        !_isImmersive &&
+                        _controller.slides.length > 1) ...[
+                      Positioned(
+                        left: 16,
+                        top: 0,
+                        bottom: 0,
+                        child: IgnorePointer(
+                          child: Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Colors.white.withValues(alpha: 0.5),
+                            size: 48,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 16,
+                        top: 0,
+                        bottom: 0,
+                        child: IgnorePointer(
+                          child: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.white.withValues(alpha: 0.5),
+                            size: 48,
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    // Floating Back Button for Pin Link History
+                    if (_controller.canGoBack && !_isImmersive)
+                      Positioned(
+                        top: 16,
+                        right: 16,
+                        child: FloatingActionButton.small(
+                          heroTag: 'history_back',
+                          backgroundColor: colorScheme.primaryContainer,
+                          onPressed: () {
+                            _controller.goBackInHistory();
+                            _triggerArrowsFading();
+                          },
+                          tooltip: 'Retour',
+                          child: Icon(
+                            Icons.keyboard_return_rounded,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                  ],
+                )
+              : _buildEmptyAlbumBody(),
+          bottomNavigationBar: (hasSlides && !_isImmersive)
+              ? _buildBottomBar()
+              : null,
         );
       },
     );
@@ -330,13 +479,21 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
 
   Widget _buildSlideBody(Slide slide) {
     if (slide.isComment || _controller.showCommentView) {
-      return CommentSlideView(slide: slide, onEditComment: _handleEditComment);
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _toggleImmersiveMode,
+        child: CommentSlideView(
+          slide: slide,
+          onEditComment: _handleEditComment,
+        ),
+      );
     }
 
     return PhotoSlideView(
       slide: slide,
       controller: _controller,
       onToggleComment: _controller.toggleCommentView,
+      onTapBackground: _toggleImmersiveMode,
     );
   }
 
@@ -361,7 +518,12 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
               icon: const Icon(Icons.arrow_back_ios_new_rounded),
               tooltip: 'Diapositive précédente',
               onPressed: _controller.slides.length > 1
-                  ? _controller.previousSlide
+                  ? () {
+                      _pageController.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
                   : null,
             ),
             FilledButton.tonalIcon(
@@ -373,7 +535,12 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
               icon: const Icon(Icons.arrow_forward_ios_rounded),
               tooltip: 'Diapositive suivante',
               onPressed: _controller.slides.length > 1
-                  ? _controller.nextSlide
+                  ? () {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
                   : null,
             ),
           ],

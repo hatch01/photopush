@@ -190,5 +190,44 @@ void main() {
       controller.previousSlide();
       expect(controller.currentIndex, 2);
     });
+
+    test(
+      'navigation history is updated on links and reset on manual swipes',
+      () async {
+        await controller.addCommentSlide(commentText: 'Slide 1');
+        await controller.addCommentSlide(commentText: 'Slide 2');
+        await controller.addCommentSlide(commentText: 'Slide 3');
+
+        controller.goToSlide(0);
+        expect(controller.canGoBack, isFalse);
+
+        // Simulate tapping a pin linking to slide 2
+        controller.navigateToSlideViaLink(2);
+        expect(controller.currentIndex, 2);
+        expect(controller.canGoBack, isTrue);
+
+        // Simulate navigating to slide 1
+        controller.navigateToSlideViaLink(1);
+        expect(controller.currentIndex, 1);
+        expect(controller.canGoBack, isTrue);
+
+        // Go back twice
+        controller.goBackInHistory();
+        expect(controller.currentIndex, 2);
+        expect(controller.canGoBack, isTrue);
+
+        controller.goBackInHistory();
+        expect(controller.currentIndex, 0);
+        expect(controller.canGoBack, isFalse);
+
+        // Now navigate via link again
+        controller.navigateToSlideViaLink(2);
+        expect(controller.canGoBack, isTrue);
+
+        // Manual swipe should clear history
+        controller.nextSlide();
+        expect(controller.canGoBack, isFalse);
+      },
+    );
   });
 }

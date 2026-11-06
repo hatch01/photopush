@@ -96,14 +96,13 @@ void main() {
       // Verify no pins initially
       expect(find.byType(PinView), findsNothing);
 
-      final gestureDetector = find.descendant(
-        of: find.byType(LayoutBuilder),
-        matching: find.byType(GestureDetector).first,
+      final gestureDetector = find.byWidgetPredicate(
+        (widget) => widget is GestureDetector && widget.onTapUp != null,
       );
 
       // We extract the onTapUp callback directly because tapping through
       // the Stack sometimes fails to hit the background detector in tests.
-      final GestureDetector gd = tester.widget(gestureDetector);
+      final GestureDetector gd = tester.widget(gestureDetector.first);
       gd.onTapUp!(
         TapUpDetails(
           kind: PointerDeviceKind.touch,

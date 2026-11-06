@@ -15,11 +15,13 @@ class PhotoSlideView extends StatefulWidget {
     required this.slide,
     required this.controller,
     required this.onToggleComment,
+    this.onTapBackground,
   });
 
   final Slide slide;
   final AlbumDetailController controller;
   final VoidCallback onToggleComment;
+  final VoidCallback? onTapBackground;
 
   @override
   State<PhotoSlideView> createState() => _PhotoSlideViewState();
@@ -27,11 +29,43 @@ class PhotoSlideView extends StatefulWidget {
 
 class _PhotoSlideViewState extends State<PhotoSlideView> {
   bool _pinsVisible = true;
+  final TransformationController _transformationController =
+      TransformationController();
+  TapDownDetails? _doubleTapDetails;
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  void _handleDoubleTapDown(TapDownDetails details) {
+    _doubleTapDetails = details;
+  }
+
+  void _handleDoubleTap() {
+    if (_transformationController.value != Matrix4.identity()) {
+      _transformationController.value = Matrix4.identity();
+    } else {
+      final position = _doubleTapDetails?.localPosition ?? Offset.zero;
+      _transformationController.value = Matrix4.identity()
+        // ignore: deprecated_member_use
+        ..translate(-position.dx * 1.5, -position.dy * 1.5)
+        // ignore: deprecated_member_use
+        ..scale(2.5);
+    }
+  }
 
   Future<void> _handleImageTap(
     TapUpDetails details,
     BoxConstraints constraints,
   ) async {
+    // Si on est pas à l'échelle 1, on empêche de planter une punaise pour éviter les décalages de calcul
+    if (_transformationController.value != Matrix4.identity()) {
+      widget.onTapBackground?.call();
+      return;
+    }
+
     // 1. Calculate normalized coordinates
     final x = details.localPosition.dx / constraints.maxWidth;
     final y = details.localPosition.dy / constraints.maxHeight;
@@ -104,49 +138,58 @@ class _PhotoSlideViewState extends State<PhotoSlideView> {
 
               if (file != null && file.existsSync()) {
                 return Center(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTapUp: (details) =>
-                            _handleImageTap(details, constraints),
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            // The image sizes itself to fit the constraints while maintaining aspect ratio.
-                            // The Stack shrink-wraps it, giving us the exact painted dimensions.
-                            Image.file(file, fit: BoxFit.contain),
+                  child: GestureDetector(
+                    onDoubleTapDown: _handleDoubleTapDown,
+                    onDoubleTap: _handleDoubleTap,
+                    child: InteractiveViewer(
+                      transformationController: _transformationController,
+                      minScale: 1.0,
+                      maxScale: 6.0,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTapUp: (details) =>
+                                _handleImageTap(details, constraints),
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                // The image sizes itself to fit the constraints while maintaining aspect ratio.
+                                // The Stack shrink-wraps it, giving us the exact painted dimensions.
+                                Image.file(file, fit: BoxFit.contain),
 
-                            if (_pinsVisible)
-                              ...widget.slide.pins.map((pin) {
-                                // Calculate position based on the painted image size (which matches the Stack size)
-                                return Positioned(
-                                  // Pin tip is at bottom center. We use FractionalOffset to align the pin widget.
-                                  // Since Positioned doesn't support FractionalOffset directly relative to its own size,
-                                  // we will position it by its tip manually.
-                                  // A cleaner way is using Align if we had a wrapping container, but Positioned works if we calculate offset.
-                                  // Actually, PinView uses Stack alignment bottomCenter, so the container's bottomCenter is the tip.
-                                  // We must place the top-left of the PinView such that its bottom-center falls on (x, y).
-                                  // Size of PinView is (32 * size) x (32 * size).
-                                  left:
-                                      (pin.x * constraints.maxWidth) -
-                                      (16.0 * pin.size),
-                                  top:
-                                      (pin.y * constraints.maxHeight) -
-                                      (32.0 * pin.size),
-                                  child: GestureDetector(
-                                    onLongPress: () => _openPinEditor(pin),
-                                    child: PinView(
-                                      pin: pin,
-                                      onTap: () => _handlePinTap(pin),
-                                    ),
-                                  ),
-                                );
-                              }),
-                          ],
-                        ),
-                      );
-                    },
+                                if (_pinsVisible)
+                                  ...widget.slide.pins.map((pin) {
+                                    // Calculate position based on the painted image size (which matches the Stack size)
+                                    return Positioned(
+                                      // Pin tip is at bottom center. We use FractionalOffset to align the pin widget.
+                                      // Since Positioned doesn't support FractionalOffset directly relative to its own size,
+                                      // we will position it by its tip manually.
+                                      // A cleaner way is using Align if we had a wrapping container, but Positioned works if we calculate offset.
+                                      // Actually, PinView uses Stack alignment bottomCenter, so the container's bottomCenter is the tip.
+                                      // We must place the top-left of the PinView such that its bottom-center falls on (x, y).
+                                      // Size of PinView is (32 * size) x (32 * size).
+                                      left:
+                                          (pin.x * constraints.maxWidth) -
+                                          (16.0 * pin.size),
+                                      top:
+                                          (pin.y * constraints.maxHeight) -
+                                          (32.0 * pin.size),
+                                      child: GestureDetector(
+                                        onLongPress: () => _openPinEditor(pin),
+                                        child: PinView(
+                                          pin: pin,
+                                          onTap: () => _handlePinTap(pin),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 );
               }
@@ -180,6 +223,19 @@ class _PhotoSlideViewState extends State<PhotoSlideView> {
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
+                      ),
+                      const SizedBox(height: 16),
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          // Allow re-association
+                          await widget.controller.reassociateImage(
+                            widget.slide.id,
+                            fromCamera: false,
+                            storeInApp: widget.slide.image?.isInternal ?? true,
+                          );
+                        },
+                        icon: const Icon(Icons.image_search_rounded),
+                        label: const Text('Réassocier une image'),
                       ),
                     ],
                   ),

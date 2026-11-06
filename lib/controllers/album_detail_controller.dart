@@ -27,11 +27,13 @@ class AlbumDetailController extends ChangeNotifier {
   int _currentIndex;
   bool _isSaving = false;
   bool _showCommentView = false; // toggle between photo view and comment view
+  final List<int> _navigationHistory = [];
 
   Album get album => _album;
   int get currentIndex => _currentIndex;
   bool get isSaving => _isSaving;
   bool get showCommentView => _showCommentView;
+  bool get canGoBack => _navigationHistory.isNotEmpty;
 
   List<Slide> get slides => _album.slides;
   bool get isEmpty => slides.isEmpty;
@@ -53,6 +55,7 @@ class AlbumDetailController extends ChangeNotifier {
     if (slides.isEmpty) return;
     _currentIndex = (_currentIndex + 1) % slides.length;
     _showCommentView = false;
+    _navigationHistory.clear(); // Swipe resets history
     notifyListeners();
   }
 
@@ -60,13 +63,93 @@ class AlbumDetailController extends ChangeNotifier {
     if (slides.isEmpty) return;
     _currentIndex = (_currentIndex - 1 + slides.length) % slides.length;
     _showCommentView = false;
+    _navigationHistory.clear(); // Swipe resets history
     notifyListeners();
   }
 
+  /// Jumps directly to a slide without pushing to history (e.g. from grid)
   void goToSlide(int index) {
-    if (index >= 0 && index < slides.length) {
+    if (index >= 0 && index < slides.length && index != _currentIndex) {
       _currentIndex = index;
       _showCommentView = false;
+      _navigationHistory.clear();
+      notifyListeners();
+    }
+  }
+
+  /// Navigates to a slide via a pin link, keeping track of history.
+  void navigateToSlideViaLink(int index) {
+    if (index >= 0 && index < slides.length && index != _currentIndex) {
+      _navigationHistory.add(_currentIndex);
+      _currentIndex = index;
+      _showCommentView = false;
+      notifyListeners();
+    }
+  }
+
+  /// Returns to the previous slide in the navigation history.
+  void goBackInHistory() {
+    if (_navigationHistory.isNotEmpty) {
+      _currentIndex = _navigationHistory.removeLast();
+      _showCommentView = false;
+      notifyListeners();
+    }
+  }
+
+  /// Reassociates an image for a slide that lost its file.
+  Future<void> reassociateImage(
+    String slideId, {
+    required bool fromCamera,
+    bool storeInApp = true,
+  }) async {
+    final file = fromCamera
+        ? await _imagePicker.pickFromCamera()
+        : await _imagePicker.pickFromGallery();
+    if (file == null) return;
+
+    final slideIndex = slides.indexWhere((s) => s.id == slideId);
+    if (slideIndex == -1) return;
+
+    _isSaving = true;
+    notifyListeners();
+
+    try {
+      final ImageSource imageSource;
+
+      if (storeInApp) {
+        final imagesDir = await _storageService.getImagesDirectory(_album.name);
+        final processedFile = await _imageProcessor.processAndSaveImage(
+          sourceFile: file,
+          targetImagesDir: imagesDir,
+        );
+
+        imageSource = ImageSource(
+          storageType: ImageStorageType.internal,
+          path: p.join('images', p.basename(processedFile.path)),
+          originalFileName: p.basename(file.path),
+          fileSize: processedFile.lengthSync(),
+        );
+      } else {
+        imageSource = ImageSource(
+          storageType: ImageStorageType.gallery,
+          path: file.path,
+          originalFileName: p.basename(file.path),
+          fileSize: file.lengthSync(),
+        );
+      }
+
+      final updatedSlide = slides[slideIndex].copyWith(image: imageSource);
+      final newSlides = List<Slide>.from(slides);
+      newSlides[slideIndex] = updatedSlide;
+
+      _album = _album.copyWith(
+        slides: newSlides,
+        updatedAt: DateTime.now().toUtc(),
+      );
+
+      await _storageService.saveAlbum(_album);
+    } finally {
+      _isSaving = false;
       notifyListeners();
     }
   }
