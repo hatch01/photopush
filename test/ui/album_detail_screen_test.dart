@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photopush/controllers/album_detail_controller.dart';
+import 'package:photopush/controllers/settings_controller.dart';
 import 'package:photopush/models/models.dart';
 import 'package:photopush/services/services.dart';
 import 'package:photopush/ui/screens/album_detail_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('US-2 : AlbumDetailScreen (Slides Viewing & Editing)', () {
@@ -13,8 +15,17 @@ void main() {
     late AlbumStorageService storageService;
     late Album album;
     late AlbumDetailController controller;
+    late SettingsController settingsController;
 
-    setUp(() {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({
+        'auto_save_enabled':
+            false, // Disable auto-save timer to prevent test leaks
+      });
+      final prefs = await SharedPreferences.getInstance();
+      settingsController = SettingsController(prefs);
+      await settingsController.loadSettings();
+
       tempRootDir = Directory.systemTemp.createTempSync(
         'album_detail_ui_test_',
       );
@@ -22,11 +33,12 @@ void main() {
         baseDirectoryResolver: () async => tempRootDir,
       );
       album = Album(name: 'Mon Album Test');
-      storageService.saveAlbum(album);
+      await storageService.saveAlbum(album);
 
       controller = AlbumDetailController(
         initialAlbum: album,
         storageService: storageService,
+        settingsController: settingsController,
       );
     });
 
@@ -39,7 +51,11 @@ void main() {
     Future<void> pumpScreen(WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: AlbumDetailScreen(album: album, controller: controller),
+          home: AlbumDetailScreen(
+            album: album,
+            controller: controller,
+            settingsController: settingsController,
+          ),
         ),
       );
       await tester.pump();

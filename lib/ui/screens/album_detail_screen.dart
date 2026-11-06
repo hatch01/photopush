@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../controllers/album_detail_controller.dart';
+import '../../controllers/settings_controller.dart';
 import '../../models/models.dart';
 import '../widgets/add_slide_bottom_sheet.dart';
 import '../widgets/comment_slide_view.dart';
@@ -33,9 +34,15 @@ class ZoomableScrollPhysics extends ScrollPhysics {
 
 /// Screen for viewing and managing slides within an album.
 class AlbumDetailScreen extends StatefulWidget {
-  const AlbumDetailScreen({super.key, required this.album, this.controller});
+  const AlbumDetailScreen({
+    super.key,
+    required this.album,
+    required this.settingsController,
+    this.controller,
+  });
 
   final Album album;
+  final SettingsController settingsController;
   final AlbumDetailController? controller;
 
   @override
@@ -53,7 +60,11 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   void initState() {
     super.initState();
     _controller =
-        widget.controller ?? AlbumDetailController(initialAlbum: widget.album);
+        widget.controller ??
+        AlbumDetailController(
+          initialAlbum: widget.album,
+          settingsController: widget.settingsController,
+        );
 
     final initialPage = _controller.hasSlides
         ? 1000 * _controller.slides.length + _controller.currentIndex
@@ -119,7 +130,11 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
     final result = await showModalBottomSheet<AddSlideResult>(
       context: context,
       isScrollControlled: true,
-      builder: (ctx) => const AddSlideBottomSheet(),
+      builder: (ctx) => AddSlideBottomSheet(
+        defaultStoreInApp:
+            widget.settingsController.defaultImageStorage ==
+            ImageStorageType.internal,
+      ),
     );
 
     if (result == null || !mounted) return;

@@ -95,7 +95,14 @@ class _PhotoSlideViewState extends State<PhotoSlideView> {
     final normalizedY = y.clamp(0.0, 1.0);
 
     // 2. Create a default pin
-    final newPin = Pin(x: normalizedX, y: normalizedY);
+    final newPin = Pin(
+      x: normalizedX,
+      y: normalizedY,
+      color:
+          widget.controller.settingsController?.defaultPinColor ??
+          PinColor.yellow,
+      size: widget.controller.settingsController?.defaultPinSize ?? 1.5,
+    );
 
     // 3. Open editor dialog
     await _openPinEditor(newPin, isNew: true);

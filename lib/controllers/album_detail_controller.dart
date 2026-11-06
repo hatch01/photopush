@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -5,6 +6,7 @@ import 'package:path/path.dart' as p;
 
 import '../models/models.dart';
 import '../services/services.dart';
+import 'settings_controller.dart';
 
 /// Controller managing the slides, viewing, and editing of an opened album.
 class AlbumDetailController extends ChangeNotifier {
@@ -13,6 +15,7 @@ class AlbumDetailController extends ChangeNotifier {
     AlbumStorageService? storageService,
     ImageProcessorService? imageProcessor,
     ImagePickerService? imagePicker,
+    this.settingsController,
   }) : _album = initialAlbum,
        _storageService = storageService ?? AlbumStorageService(),
        _imageProcessor = imageProcessor ?? const ImageProcessorService(),
@@ -22,12 +25,48 @@ class AlbumDetailController extends ChangeNotifier {
   final AlbumStorageService _storageService;
   final ImageProcessorService _imageProcessor;
   final ImagePickerService _imagePicker;
+  final SettingsController? settingsController;
 
   Album _album;
   int _currentIndex;
   bool _isSaving = false;
-  bool _showCommentView = false; // toggle between photo view and comment view
+  bool _showCommentView = false;
   final List<int> _navigationHistory = [];
+
+  Timer? _autoSaveTimer;
+
+  @override
+  void dispose() {
+    _autoSaveTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Triggers a debounced save operation if auto-save is enabled.
+  void _triggerAutoSave() {
+    if (settingsController != null && !settingsController!.autoSaveEnabled) {
+      return; // Auto-save disabled
+    }
+
+    _autoSaveTimer?.cancel();
+    _autoSaveTimer = Timer(const Duration(milliseconds: 1500), () async {
+      await forceSaveAlbum();
+    });
+  }
+
+  /// Manually forces a save of the album to disk.
+  Future<void> forceSaveAlbum() async {
+    _autoSaveTimer?.cancel();
+    _isSaving = true;
+    notifyListeners();
+
+    try {
+      _album = _album.copyWith(updatedAt: DateTime.now().toUtc());
+      await _storageService.saveAlbum(_album);
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
+  }
 
   Album get album => _album;
   int get currentIndex => _currentIndex;
@@ -125,8 +164,8 @@ class AlbumDetailController extends ChangeNotifier {
       updatedAt: DateTime.now().toUtc(),
     );
 
-    await _storageService.saveAlbum(_album);
     notifyListeners();
+    _triggerAutoSave();
   }
 
   /// Reassociates an image for a slide that lost its file.
@@ -190,7 +229,7 @@ class AlbumDetailController extends ChangeNotifier {
   /// Adds a photo slide from camera or gallery.
   Future<Slide?> addPhotoSlideFromPicker({
     required bool fromCamera,
-    bool storeInApp = true,
+    bool? storeInApp,
     String? customTitle,
     String? comment,
   }) async {
@@ -211,7 +250,7 @@ class AlbumDetailController extends ChangeNotifier {
   /// Adds a photo slide from an existing [File].
   Future<Slide> addPhotoSlide({
     required File sourceFile,
-    bool storeInApp = true,
+    bool? storeInApp,
     String? customTitle,
     String? comment,
   }) async {
@@ -224,8 +263,12 @@ class AlbumDetailController extends ChangeNotifier {
           : 'Titre ${slides.length + 1}';
 
       final ImageSource imageSource;
+      final shouldStoreInternal =
+          storeInApp ??
+          (settingsController?.defaultImageStorage ==
+              ImageStorageType.internal);
 
-      if (storeInApp) {
+      if (shouldStoreInternal) {
         final imagesDir = await _storageService.getImagesDirectory(_album.name);
         final processedFile = await _imageProcessor.processAndSaveImage(
           sourceFile: sourceFile,
@@ -394,8 +437,8 @@ class AlbumDetailController extends ChangeNotifier {
       updatedAt: DateTime.now().toUtc(),
     );
 
-    await _storageService.saveAlbum(_album);
     notifyListeners();
+    _triggerAutoSave();
   }
 
   /// Resolves the file for an image source.

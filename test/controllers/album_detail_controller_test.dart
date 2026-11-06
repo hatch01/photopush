@@ -145,6 +145,8 @@ void main() {
       await controller.updateCurrentSlideComment('Texte Modifié');
       expect(controller.currentSlide?.comment, 'Texte Modifié');
 
+      await controller.forceSaveAlbum();
+
       // Verify on disk
       final loaded = await storageService.loadAlbum(initialAlbum.name);
       expect(loaded.albumOrNull?.slides.first.title, 'Titre Modifié');

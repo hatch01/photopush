@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/albums_controller.dart';
+import '../../controllers/settings_controller.dart';
 import '../../services/services.dart';
 import '../widgets/album_card.dart';
 import '../widgets/create_album_dialog.dart';
@@ -9,12 +10,18 @@ import '../widgets/empty_albums_view.dart';
 import '../widgets/rename_album_dialog.dart';
 import 'album_detail_screen.dart';
 import 'file_manager_screen.dart';
+import 'settings_screen.dart';
 
 /// The main screen displaying the list of all photo albums.
 class AlbumsListScreen extends StatefulWidget {
-  const AlbumsListScreen({super.key, this.controller});
+  const AlbumsListScreen({
+    super.key,
+    this.controller,
+    required this.settingsController,
+  });
 
   final AlbumsController? controller;
+  final SettingsController settingsController;
 
   @override
   State<AlbumsListScreen> createState() => _AlbumsListScreenState();
@@ -380,6 +387,19 @@ class _AlbumsListScreenState extends State<AlbumsListScreen> {
                         });
                   },
                 ),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  tooltip: 'Paramètres',
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SettingsScreen(
+                          controller: widget.settingsController,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ],
             ],
           ),
@@ -474,7 +494,10 @@ class _AlbumsListScreenState extends State<AlbumsListScreen> {
                 if (result is AlbumLoadSuccess) {
                   await Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (ctx) => AlbumDetailScreen(album: result.album),
+                      builder: (ctx) => AlbumDetailScreen(
+                        album: result.album,
+                        settingsController: widget.settingsController,
+                      ),
                     ),
                   );
                   if (mounted) {

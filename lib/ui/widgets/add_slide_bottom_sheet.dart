@@ -11,14 +11,22 @@ class AddSlideResult {
 
 /// Modal bottom sheet allowing the user to select the type of slide to add.
 class AddSlideBottomSheet extends StatefulWidget {
-  const AddSlideBottomSheet({super.key});
+  const AddSlideBottomSheet({super.key, required this.defaultStoreInApp});
+
+  final bool defaultStoreInApp;
 
   @override
   State<AddSlideBottomSheet> createState() => _AddSlideBottomSheetState();
 }
 
 class _AddSlideBottomSheetState extends State<AddSlideBottomSheet> {
-  bool _storeInApp = true;
+  late bool _storeInApp;
+
+  @override
+  void initState() {
+    super.initState();
+    _storeInApp = widget.defaultStoreInApp;
+  }
 
   @override
   Widget build(BuildContext context) {

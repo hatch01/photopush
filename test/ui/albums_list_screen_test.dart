@@ -3,16 +3,24 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photopush/controllers/albums_controller.dart';
+import 'package:photopush/controllers/settings_controller.dart';
 import 'package:photopush/services/services.dart';
 import 'package:photopush/ui/screens/albums_list_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('US-1 : AlbumsListScreen (UI & User Interactions)', () {
     late Directory tempRootDir;
     late AlbumStorageService storageService;
     late AlbumsController controller;
+    late SettingsController settingsController;
 
-    setUp(() {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      settingsController = SettingsController(prefs);
+      await settingsController.loadSettings();
+
       tempRootDir = Directory.systemTemp.createTempSync('photopush_ui_test_');
       storageService = AlbumStorageService(
         baseDirectoryResolver: () async => tempRootDir,
@@ -29,7 +37,12 @@ void main() {
     Future<void> pumpScreen(WidgetTester tester) async {
       await controller.loadAlbums();
       await tester.pumpWidget(
-        MaterialApp(home: AlbumsListScreen(controller: controller)),
+        MaterialApp(
+          home: AlbumsListScreen(
+            controller: controller,
+            settingsController: settingsController,
+          ),
+        ),
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));

@@ -11,6 +11,8 @@ import 'package:photopush/services/services.dart';
 import 'package:photopush/ui/widgets/photo_slide_view.dart';
 import 'package:photopush/ui/widgets/pin_editor_dialog.dart';
 import 'package:photopush/ui/widgets/pin_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:photopush/controllers/settings_controller.dart';
 
 void main() {
   group('US-3 : PhotoSlideView (Interactive Pins Overlay)', () {
@@ -19,8 +21,14 @@ void main() {
     late Album album;
     late AlbumDetailController controller;
     late File photoFile;
+    late SettingsController settingsController;
 
-    setUp(() {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({'auto_save_enabled': false});
+      final prefs = await SharedPreferences.getInstance();
+      settingsController = SettingsController(prefs);
+      await settingsController.loadSettings();
+
       tempRootDir = Directory.systemTemp.createTempSync('slide_ui_test_');
       storageService = AlbumStorageService(
         baseDirectoryResolver: () async => tempRootDir,
@@ -49,11 +57,12 @@ void main() {
       );
 
       album = Album(name: 'Test Punaise UI', slides: [slide1]);
-      storageService.saveAlbum(album);
+      await storageService.saveAlbum(album);
 
       controller = AlbumDetailController(
         initialAlbum: album,
         storageService: storageService,
+        settingsController: settingsController,
       );
     });
 
