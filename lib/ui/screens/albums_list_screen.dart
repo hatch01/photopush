@@ -167,6 +167,142 @@ class _AlbumsListScreenState extends State<AlbumsListScreen> {
     }
   }
 
+  Future<void> _handleExportAlbum(String albumName) async {
+    try {
+      final archiveService = ArchiveService(_controller.storageService);
+      final shareService = const ShareService();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Préparation de l\'archive en cours...'),
+            duration: Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+
+      final archiveFile = await archiveService.createArchive(albumName);
+
+      // Partage via l'OS
+      await shareService.shareFile(
+        archiveFile,
+        text: 'Voici mon album PhotoPush : $albumName',
+      );
+
+      // Le fichier temporaire sera nettoyé par le système d'exploitation plus tard
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de l\'exportation : $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleImportAlbum() async {
+    try {
+      final shareService = const ShareService();
+      final archiveService = ArchiveService(_controller.storageService);
+
+      final file = await shareService.pickPhotopushArchive();
+      if (file == null) return; // Annulé
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Importation en cours...'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+
+      // Check for naming collisions (we can extract original name from zip inside the service, but it's easier to let the service throw or we can ask for a name)
+      // For simplicity, we just import and let the service handle collisions or throw if it exists.
+      // Actually, we should catch StateError and prompt for a new name.
+      String? importedName;
+      try {
+        importedName = await archiveService.importArchive(file);
+      } on StateError catch (_) {
+        // Name collision
+        if (mounted) {
+          final newName = await showDialog<String>(
+            context: context,
+            builder: (ctx) {
+              final textController = TextEditingController();
+              return AlertDialog(
+                title: const Text('Conflit de nom'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Un album avec ce nom existe déjà. Veuillez saisir un nouveau nom pour importer cette copie :',
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: textController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(null),
+                    child: const Text('Annuler'),
+                  ),
+                  FilledButton(
+                    onPressed: () =>
+                        Navigator.of(ctx).pop(textController.text.trim()),
+                    child: const Text('Importer'),
+                  ),
+                ],
+              );
+            },
+          );
+
+          if (newName != null && newName.isNotEmpty) {
+            importedName = await archiveService.importArchive(
+              file,
+              targetAlbumName: newName,
+            );
+          }
+        }
+      }
+
+      if (importedName != null && mounted) {
+        await _controller.loadAlbums();
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Album "$importedName" importé avec succès !'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Erreur : l\'archive est invalide ou corrompue.',
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -222,6 +358,11 @@ class _AlbumsListScreenState extends State<AlbumsListScreen> {
                       setState(() => _isSearchOpen = true);
                     },
                   ),
+                IconButton(
+                  icon: const Icon(Icons.file_download_outlined),
+                  tooltip: 'Importer un album',
+                  onPressed: _handleImportAlbum,
+                ),
                 IconButton(
                   icon: const Icon(Icons.storage_outlined),
                   tooltip: 'Gestion des fichiers',
@@ -343,6 +484,7 @@ class _AlbumsListScreenState extends State<AlbumsListScreen> {
               },
               onRename: () => _handleRenameAlbum(result.albumName),
               onDuplicate: () => _handleDuplicateAlbum(result.albumName),
+              onExport: () => _handleExportAlbum(result.albumName),
               onDelete: () => _handleDeleteAlbum(result.albumName),
             );
           },

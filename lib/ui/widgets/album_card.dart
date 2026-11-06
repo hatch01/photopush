@@ -14,6 +14,7 @@ class AlbumCard extends StatelessWidget {
     required this.onTap,
     required this.onRename,
     required this.onDuplicate,
+    required this.onExport,
     required this.onDelete,
   });
 
@@ -22,6 +23,7 @@ class AlbumCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onRename;
   final VoidCallback onDuplicate;
+  final VoidCallback onExport;
   final VoidCallback onDelete;
 
   String _formatDate(DateTime date) {
@@ -228,6 +230,9 @@ class AlbumCard extends StatelessWidget {
                         case 'duplicate':
                           onDuplicate();
                           break;
+                        case 'export':
+                          onExport();
+                          break;
                         case 'delete':
                           onDelete();
                           break;
@@ -240,7 +245,7 @@ class AlbumCard extends StatelessWidget {
                           children: [
                             Icon(Icons.edit_outlined),
                             SizedBox(width: 12),
-                            Text('Renommer'),
+                            Expanded(child: Text('Renommer')),
                           ],
                         ),
                       ),
@@ -250,7 +255,17 @@ class AlbumCard extends StatelessWidget {
                           children: [
                             Icon(Icons.copy_outlined),
                             SizedBox(width: 12),
-                            Text('Dupliquer'),
+                            Expanded(child: Text('Dupliquer')),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'export',
+                        child: Row(
+                          children: [
+                            Icon(Icons.share_outlined),
+                            SizedBox(width: 12),
+                            Expanded(child: Text('Exporter (.photopush)')),
                           ],
                         ),
                       ),
@@ -263,9 +278,11 @@ class AlbumCard extends StatelessWidget {
                               color: colorScheme.error,
                             ),
                             const SizedBox(width: 12),
-                            Text(
-                              'Supprimer',
-                              style: TextStyle(color: colorScheme.error),
+                            Expanded(
+                              child: Text(
+                                'Supprimer',
+                                style: TextStyle(color: colorScheme.error),
+                              ),
                             ),
                           ],
                         ),
