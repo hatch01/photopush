@@ -457,4 +457,120 @@ class AlbumStorageService {
     }
     return candidate;
   }
+
+  /// Analyzes the album directory to compute disk space, enumerate files,
+  /// and identify unreferenced (orphan) images and dangling tmp files.
+  Future<AlbumDiskSpaceInfo> getAlbumDiskSpaceInfo(String albumName) async {
+    final albumDir = await getAlbumDirectory(albumName);
+    if (!albumDir.existsSync()) {
+      throw FileSystemException('Album directory not found', albumDir.path);
+    }
+
+    final loadResult = await loadAlbumFromDirectory(albumDir);
+    final Album? validAlbum = loadResult.albumOrNull;
+
+    final referencedRelativePaths = <String>{};
+    if (validAlbum != null) {
+      if (validAlbum.coverPath != null) {
+        referencedRelativePaths.add(validAlbum.coverPath!);
+      }
+      // Add cover.jpg as naturally referenced if it exists and is used implicitly
+      referencedRelativePaths.add('cover.jpg');
+
+      for (final slide in validAlbum.slides) {
+        if (slide.image != null && slide.image!.isInternal) {
+          // Internal paths are typically stored as 'images/file.jpg'
+          referencedRelativePaths.add(slide.image!.path.replaceAll('\\', '/'));
+        }
+      }
+    }
+
+    int totalBytes = 0;
+    int imageCount = 0;
+    int orphanBytes = 0;
+    int orphanCount = 0;
+    final files = <AlbumFileItem>[];
+
+    for (final entity in albumDir.listSync(recursive: true)) {
+      if (entity is File) {
+        final relativePath = p
+            .relative(entity.path, from: albumDir.path)
+            .replaceAll('\\', '/');
+        final size = entity.lengthSync();
+        totalBytes += size;
+
+        bool isImage = false;
+        bool isOrphan = false;
+
+        final isTmpFile = relativePath.endsWith('.tmp');
+
+        if (relativePath.startsWith('$imagesFolderName/')) {
+          isImage = true;
+          imageCount++;
+          if (!referencedRelativePaths.contains(relativePath)) {
+            isOrphan = true;
+          }
+        } else if (isTmpFile) {
+          isOrphan = true; // dangling tmp files are orphans
+        }
+
+        if (isOrphan) {
+          orphanBytes += size;
+          orphanCount++;
+        }
+
+        files.add(
+          AlbumFileItem(
+            path: entity.path,
+            name: p.basename(entity.path),
+            sizeInBytes: size,
+            isImage: isImage,
+            isOrphan: isOrphan,
+          ),
+        );
+      }
+    }
+
+    return AlbumDiskSpaceInfo(
+      albumName: albumName,
+      totalBytes: totalBytes,
+      imageCount: imageCount,
+      orphanBytes: orphanBytes,
+      orphanCount: orphanCount,
+      files: files,
+    );
+  }
+
+  /// Purges all unreferenced image files and dangling tmp files from the album directory,
+  /// and detaches broken pin links.
+  Future<AlbumDiskSpaceInfo> purgeOrphanFiles(String albumName) async {
+    final info = await getAlbumDiskSpaceInfo(albumName);
+
+    // 1. Delete physical orphan files
+    for (final fileItem in info.files) {
+      if (fileItem.isOrphan) {
+        try {
+          File(fileItem.path).deleteSync();
+        } catch (e) {
+          developer.log(
+            'Failed to delete orphan file: ${fileItem.path}',
+            error: e,
+          );
+        }
+      }
+    }
+
+    // 2. Clean up broken pin links internally
+    final loadResult = await loadAlbum(albumName);
+    if (loadResult is AlbumLoadSuccess) {
+      final cleanedAlbum = loadResult.album.cleanOrphanPins();
+      // Only save if it actually modified the album
+      if (cleanedAlbum != loadResult.album) {
+        await saveAlbum(cleanedAlbum, previousName: albumName);
+      }
+    }
+
+    // Return the updated state
+    return await getAlbumDiskSpaceInfo(albumName);
+  }
 }

@@ -8,6 +8,7 @@ import '../widgets/delete_album_dialog.dart';
 import '../widgets/empty_albums_view.dart';
 import '../widgets/rename_album_dialog.dart';
 import 'album_detail_screen.dart';
+import 'file_manager_screen.dart';
 
 /// The main screen displaying the list of all photo albums.
 class AlbumsListScreen extends StatefulWidget {
@@ -221,6 +222,23 @@ class _AlbumsListScreenState extends State<AlbumsListScreen> {
                       setState(() => _isSearchOpen = true);
                     },
                   ),
+                IconButton(
+                  icon: const Icon(Icons.storage_outlined),
+                  tooltip: 'Gestion des fichiers',
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (context) => FileManagerScreen(
+                              storageService: _controller.storageService,
+                            ),
+                          ),
+                        )
+                        .then((_) {
+                          if (mounted) _controller.loadAlbums();
+                        });
+                  },
+                ),
               ],
             ],
           ),

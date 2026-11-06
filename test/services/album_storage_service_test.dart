@@ -222,5 +222,77 @@ void main() {
         expect(duplicate2.name, 'Vacances (copie 2)');
       },
     );
+
+    test(
+      'getAlbumDiskSpaceInfo and purgeOrphanFiles identify and clean orphans',
+      () async {
+        final album = Album(
+          name: 'Album Test Orphans',
+          coverPath: 'cover.jpg',
+          slides: [
+            Slide(
+              id: 's1',
+              image: const ImageSource(
+                storageType: ImageStorageType.internal,
+                path: 'images/used_photo.jpg',
+              ),
+            ),
+          ],
+        );
+        await storageService.saveAlbum(album);
+
+        final albumDir = await storageService.getAlbumDirectory(album.name);
+        final imagesDir = await storageService.getImagesDirectory(album.name);
+        if (!imagesDir.existsSync()) {
+          imagesDir.createSync(recursive: true);
+        }
+
+        // Create referenced files
+        File(p.join(albumDir.path, 'cover.jpg'))
+            .writeAsStringSync('cover_data');
+        File(p.join(imagesDir.path, 'used_photo.jpg'))
+            .writeAsStringSync('used_data');
+
+        // Create orphan files
+        File(p.join(imagesDir.path, 'orphan_photo.jpg'))
+            .writeAsStringSync('orphan_data');
+
+        // 1. Check Info before purge
+        final info = await storageService.getAlbumDiskSpaceInfo(album.name);
+        expect(info.imageCount, 2); // used_photo + orphan_photo
+        expect(
+          info.orphanCount,
+          1,
+        ); // orphan_photo (dangling tmp would have been auto-deleted on load)
+        expect(info.orphanBytes, 'orphan_data'.length);
+        expect(
+          info.files.where((f) => f.name == 'orphan_photo.jpg').first.isOrphan,
+          isTrue,
+        );
+        expect(
+          info.files.where((f) => f.name == 'used_photo.jpg').first.isOrphan,
+          isFalse,
+        );
+
+        // 2. Execute purge
+        final newInfo = await storageService.purgeOrphanFiles(album.name);
+
+        // 3. Verify clean state
+        expect(newInfo.orphanCount, 0);
+        expect(newInfo.orphanBytes, 0);
+        expect(newInfo.imageCount, 1); // only used_photo remains
+
+        // Verify physically on disk
+        expect(
+          File(p.join(imagesDir.path, 'orphan_photo.jpg')).existsSync(),
+          isFalse,
+        );
+        expect(
+          File(p.join(imagesDir.path, 'used_photo.jpg')).existsSync(),
+          isTrue,
+        );
+        expect(File(p.join(albumDir.path, 'cover.jpg')).existsSync(), isTrue);
+      },
+    );
   });
 }
