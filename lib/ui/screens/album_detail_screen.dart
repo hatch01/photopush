@@ -281,13 +281,6 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
           ),
           body: hasSlides ? _buildSlideBody(slide!) : _buildEmptyAlbumBody(),
           bottomNavigationBar: hasSlides ? _buildBottomBar() : null,
-          floatingActionButton: !hasSlides
-              ? null
-              : FloatingActionButton(
-                  onPressed: _handleAddSlide,
-                  tooltip: 'Ajouter une diapositive',
-                  child: const Icon(Icons.add),
-                ),
         );
       },
     );

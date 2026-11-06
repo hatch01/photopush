@@ -8,10 +8,12 @@ class PinEditorDialog extends StatefulWidget {
     super.key,
     required this.pin,
     required this.availableSlides,
+    this.isNew = false,
   });
 
   final Pin pin;
   final List<Slide> availableSlides;
+  final bool isNew;
 
   @override
   State<PinEditorDialog> createState() => _PinEditorDialogState();
@@ -200,11 +202,12 @@ class _PinEditorDialogState extends State<PinEditorDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: _delete,
-          style: TextButton.styleFrom(foregroundColor: colorScheme.error),
-          child: const Text('Supprimer'),
-        ),
+        if (!widget.isNew)
+          TextButton(
+            onPressed: _delete,
+            style: TextButton.styleFrom(foregroundColor: colorScheme.error),
+            child: const Text('Supprimer'),
+          ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(null),
           child: const Text('Annuler'),

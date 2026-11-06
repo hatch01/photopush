@@ -186,6 +186,39 @@ class _PhotoSlideViewState extends State<PhotoSlideView> {
           ),
         ),
 
+        // Storage mode indicator
+        if (widget.slide.image != null)
+          Positioned(
+            left: 16,
+            top: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    widget.slide.image!.isInternal
+                        ? Icons.sd_storage
+                        : Icons.photo_library,
+                    size: 14,
+                    color: Colors.white70,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    widget.slide.image!.isInternal
+                        ? 'Copie locale'
+                        : 'Lien galerie',
+                    style: const TextStyle(color: Colors.white70, fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
         // Visibility toggle
         Positioned(
           left: 16,
