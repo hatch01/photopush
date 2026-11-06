@@ -5,7 +5,9 @@ import '../../controllers/album_detail_controller.dart';
 import '../../models/models.dart';
 import '../widgets/add_slide_bottom_sheet.dart';
 import '../widgets/comment_slide_view.dart';
+import '../widgets/goto_slide_bottom_sheet.dart';
 import '../widgets/photo_slide_view.dart';
+import 'reorder_slides_screen.dart';
 
 /// Screen for viewing and managing slides within an album.
 class AlbumDetailScreen extends StatefulWidget {
@@ -247,12 +249,28 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   }
 
   Future<void> _handleDeleteSlide() async {
+    // Vérifier s'il y a des liens pointant vers cette diapositive
+    final currentId = _controller.currentSlide?.id;
+    int orphanCount = 0;
+    if (currentId != null) {
+      for (final slide in _controller.slides) {
+        if (slide.id == currentId) continue;
+        for (final pin in slide.pins) {
+          if (pin.hasLink && pin.targetSlideId == currentId) {
+            orphanCount++;
+          }
+        }
+      }
+    }
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Supprimer la diapositive'),
-        content: const Text(
-          'Voulez-vous vraiment supprimer cette diapositive ? Les punaises associées seront également effacées.',
+        content: Text(
+          orphanCount > 0
+              ? 'Voulez-vous vraiment supprimer cette diapositive ?\n\nAttention : $orphanCount punaise(s) dans d\'autres diapositives pointent vers celle-ci. Leurs liens seront rompus.'
+              : 'Voulez-vous vraiment supprimer cette diapositive ? Les punaises associées seront également effacées.',
         ),
         actions: [
           TextButton(
@@ -273,6 +291,21 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
     if (confirmed == true && mounted) {
       await _controller.deleteCurrentSlide();
     }
+  }
+
+  Future<void> _handleGoTo() async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (ctx) => GoToSlideBottomSheet(controller: _controller),
+    );
+  }
+
+  Future<void> _handleReorder() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) => ReorderSlidesScreen(controller: _controller),
+      ),
+    );
   }
 
   @override
@@ -340,11 +373,61 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                             : 'Voir le commentaire',
                         onPressed: _controller.toggleCommentView,
                       ),
-                    if (slide != null)
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        tooltip: 'Supprimer la diapositive',
-                        onPressed: _handleDeleteSlide,
+                    if (hasSlides)
+                      PopupMenuButton<String>(
+                        tooltip: 'Options de la diapositive',
+                        onSelected: (val) {
+                          switch (val) {
+                            case 'goto':
+                              _handleGoTo();
+                              break;
+                            case 'reorder':
+                              _handleReorder();
+                              break;
+                            case 'delete':
+                              _handleDeleteSlide();
+                              break;
+                          }
+                        },
+                        itemBuilder: (ctx) => [
+                          const PopupMenuItem(
+                            value: 'goto',
+                            child: Row(
+                              children: [
+                                Icon(Icons.shortcut_rounded),
+                                SizedBox(width: 12),
+                                Text('Aller à...'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'reorder',
+                            child: Row(
+                              children: [
+                                Icon(Icons.grid_view_rounded),
+                                SizedBox(width: 12),
+                                Text('Réorganiser'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuDivider(),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.delete_outline,
+                                  color: colorScheme.error,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Supprimer',
+                                  style: TextStyle(color: colorScheme.error),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                   ],
                 ),

@@ -131,17 +131,19 @@ void main() {
 
       expect(find.text('Slide to delete'), findsOneWidget);
 
-      // Tap delete icon
-      await tester.tap(find.byIcon(Icons.delete_outline));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      // Tap options menu icon (more_vert is implicitly added by PopupMenuButton if no icon is specified, but wait, I didn't specify an icon so it uses more_vert)
+      await tester.tap(find.byType(PopupMenuButton<String>));
+      await tester.pumpAndSettle();
+
+      // Tap 'Supprimer' in the menu
+      await tester.tap(find.text('Supprimer'));
+      await tester.pumpAndSettle();
 
       expect(find.text('Supprimer la diapositive'), findsOneWidget);
 
       // Confirm
       await tester.tap(find.text('Supprimer').last);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
 
       expect(find.text('Slide to delete'), findsNothing);
       expect(find.text('Album vide'), findsOneWidget);

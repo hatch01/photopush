@@ -96,6 +96,39 @@ class AlbumDetailController extends ChangeNotifier {
     }
   }
 
+  /// Reorders slides by moving a slide from [oldIndex] to [newIndex].
+  Future<void> reorderSlides(int oldIndex, int newIndex) async {
+    if (oldIndex < 0 ||
+        oldIndex >= slides.length ||
+        newIndex < 0 ||
+        newIndex >= slides.length) {
+      return;
+    }
+
+    if (oldIndex == newIndex) return;
+
+    final newSlides = List<Slide>.from(slides);
+    final slide = newSlides.removeAt(oldIndex);
+    newSlides.insert(newIndex, slide);
+
+    // Update currentIndex to follow the slide we were currently looking at
+    if (_currentIndex == oldIndex) {
+      _currentIndex = newIndex;
+    } else if (_currentIndex > oldIndex && _currentIndex <= newIndex) {
+      _currentIndex--;
+    } else if (_currentIndex < oldIndex && _currentIndex >= newIndex) {
+      _currentIndex++;
+    }
+
+    _album = _album.copyWith(
+      slides: newSlides,
+      updatedAt: DateTime.now().toUtc(),
+    );
+
+    await _storageService.saveAlbum(_album);
+    notifyListeners();
+  }
+
   /// Reassociates an image for a slide that lost its file.
   Future<void> reassociateImage(
     String slideId, {
