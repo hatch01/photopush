@@ -142,7 +142,10 @@ class _SlideListTile extends StatelessWidget {
             ],
           ],
         ),
-        trailing: const Icon(Icons.drag_handle_rounded),
+        trailing: ReorderableDragStartListener(
+          index: index,
+          child: const Icon(Icons.drag_handle_rounded),
+        ),
       ),
     );
   }
