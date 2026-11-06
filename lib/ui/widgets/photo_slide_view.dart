@@ -15,6 +15,7 @@ class PhotoSlideView extends StatefulWidget {
     required this.slide,
     required this.controller,
     required this.onToggleComment,
+    this.isImmersive = false,
     this.onTapBackground,
     this.onZoomChanged,
   });
@@ -22,6 +23,7 @@ class PhotoSlideView extends StatefulWidget {
   final Slide slide;
   final AlbumDetailController controller;
   final VoidCallback onToggleComment;
+  final bool isImmersive;
   final VoidCallback? onTapBackground;
   final ValueChanged<bool>? onZoomChanged;
 
@@ -79,8 +81,7 @@ class _PhotoSlideViewState extends State<PhotoSlideView> {
     TapUpDetails details,
     BoxConstraints constraints,
   ) async {
-    // Si on est pas à l'échelle 1, on empêche de planter une punaise pour éviter les décalages de calcul
-    if (_transformationController.value != Matrix4.identity()) {
+    if (widget.isImmersive) {
       widget.onTapBackground?.call();
       return;
     }

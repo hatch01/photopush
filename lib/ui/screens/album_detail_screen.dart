@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -25,9 +23,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   late PageController _pageController;
 
   bool _isImmersive = false;
-  bool _showArrows = false;
   bool _isImageZoomed = false;
-  Timer? _arrowsTimer;
 
   @override
   void initState() {
@@ -50,7 +46,6 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
       _controller.dispose();
     }
     _pageController.dispose();
-    _arrowsTimer?.cancel();
     if (_isImmersive) {
       SystemChrome.setEnabledSystemUIMode(
         SystemUiMode.manual,
@@ -79,7 +74,6 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
     final normalizedIndex = index % _controller.slides.length;
     if (_controller.currentIndex != normalizedIndex) {
       _controller.goToSlide(normalizedIndex);
-      _triggerArrowsFading();
     }
   }
 
@@ -95,18 +89,6 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
         );
       }
     });
-  }
-
-  void _triggerArrowsFading() {
-    if (!_isImmersive && _controller.slides.length > 1) {
-      setState(() => _showArrows = true);
-      _arrowsTimer?.cancel();
-      _arrowsTimer = Timer(const Duration(seconds: 1), () {
-        if (mounted) {
-          setState(() => _showArrows = false);
-        }
-      });
-    }
   }
 
   Future<void> _handleAddSlide() async {
@@ -341,6 +323,12 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                     ),
                   ),
                   actions: [
+                    if (hasSlides)
+                      IconButton(
+                        icon: const Icon(Icons.fullscreen),
+                        tooltip: 'Plein écran',
+                        onPressed: _toggleImmersiveMode,
+                      ),
                     if (slide != null && slide.isPhoto && slide.hasComment)
                       IconButton(
                         icon: Icon(
@@ -379,36 +367,6 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                       },
                     ),
 
-                    // Fading Arrows
-                    if (_showArrows &&
-                        !_isImmersive &&
-                        _controller.slides.length > 1) ...[
-                      Positioned(
-                        left: 16,
-                        top: 0,
-                        bottom: 0,
-                        child: IgnorePointer(
-                          child: Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Colors.white.withValues(alpha: 0.5),
-                            size: 48,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        right: 16,
-                        top: 0,
-                        bottom: 0,
-                        child: IgnorePointer(
-                          child: Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: Colors.white.withValues(alpha: 0.5),
-                            size: 48,
-                          ),
-                        ),
-                      ),
-                    ],
-
                     // Floating Back Button for Pin Link History
                     if (_controller.canGoBack && !_isImmersive)
                       Positioned(
@@ -419,7 +377,6 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                           backgroundColor: colorScheme.primaryContainer,
                           onPressed: () {
                             _controller.goBackInHistory();
-                            _triggerArrowsFading();
                           },
                           tooltip: 'Retour',
                           child: Icon(
@@ -483,23 +440,16 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
 
   Widget _buildSlideBody(Slide slide) {
     if (slide.isComment || _controller.showCommentView) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _toggleImmersiveMode,
-        child: CommentSlideView(
-          slide: slide,
-          onEditComment: _handleEditComment,
-        ),
-      );
+      return CommentSlideView(slide: slide, onEditComment: _handleEditComment);
     }
 
     return PhotoSlideView(
       slide: slide,
       controller: _controller,
+      isImmersive: _isImmersive,
       onToggleComment: _controller.toggleCommentView,
       onTapBackground: _toggleImmersiveMode,
       onZoomChanged: (isZoomed) {
-        // Only trigger rebuild if value actually changed
         if (_isImageZoomed != isZoomed && mounted) {
           setState(() => _isImageZoomed = isZoomed);
         }
