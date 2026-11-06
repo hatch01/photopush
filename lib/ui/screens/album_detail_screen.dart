@@ -343,39 +343,41 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   Widget _buildBottomBar() {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        border: Border(
-          top: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          border: Border(
+            top: BorderSide(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+            ),
           ),
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            tooltip: 'Diapositive précédente',
-            onPressed: _controller.slides.length > 1
-                ? _controller.previousSlide
-                : null,
-          ),
-          FilledButton.tonalIcon(
-            onPressed: _handleAddSlide,
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios_rounded),
-            tooltip: 'Diapositive suivante',
-            onPressed: _controller.slides.length > 1
-                ? _controller.nextSlide
-                : null,
-          ),
-        ],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded),
+              tooltip: 'Diapositive précédente',
+              onPressed: _controller.slides.length > 1
+                  ? _controller.previousSlide
+                  : null,
+            ),
+            FilledButton.tonalIcon(
+              onPressed: _handleAddSlide,
+              icon: const Icon(Icons.add),
+              label: const Text('Ajouter'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_forward_ios_rounded),
+              tooltip: 'Diapositive suivante',
+              onPressed: _controller.slides.length > 1
+                  ? _controller.nextSlide
+                  : null,
+            ),
+          ],
+        ),
       ),
     );
   }
