@@ -9,6 +9,28 @@ import '../widgets/goto_slide_bottom_sheet.dart';
 import '../widgets/photo_slide_view.dart';
 import 'reorder_slides_screen.dart';
 
+/// A custom ScrollPhysics that queries a dynamic condition to allow or block scrolling
+/// without requiring the PageView to rebuild (which would destroy active gestures).
+class ZoomableScrollPhysics extends ScrollPhysics {
+  const ZoomableScrollPhysics({required this.isZoomed, super.parent});
+
+  final ValueGetter<bool> isZoomed;
+
+  @override
+  ZoomableScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return ZoomableScrollPhysics(
+      isZoomed: isZoomed,
+      parent: buildParent(ancestor),
+    );
+  }
+
+  @override
+  bool shouldAcceptUserOffset(ScrollMetrics position) {
+    if (isZoomed()) return false;
+    return super.shouldAcceptUserOffset(position);
+  }
+}
+
 /// Screen for viewing and managing slides within an album.
 class AlbumDetailScreen extends StatefulWidget {
   const AlbumDetailScreen({super.key, required this.album, this.controller});
@@ -25,6 +47,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   late PageController _pageController;
 
   bool _isImmersive = false;
+  bool _isImageZoomed = false;
 
   @override
   void initState() {
@@ -435,6 +458,9 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
               ? Stack(
                   children: [
                     PageView.builder(
+                      physics: ZoomableScrollPhysics(
+                        isZoomed: () => _isImageZoomed,
+                      ),
                       controller: _pageController,
                       onPageChanged: _onPageChanged,
                       itemBuilder: (context, index) {
@@ -519,7 +545,14 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
 
   Widget _buildSlideBody(Slide slide) {
     if (slide.isComment || _controller.showCommentView) {
-      return CommentSlideView(slide: slide, onEditComment: _handleEditComment);
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _toggleImmersiveMode,
+        child: CommentSlideView(
+          slide: slide,
+          onEditComment: _handleEditComment,
+        ),
+      );
     }
 
     return PhotoSlideView(
@@ -528,6 +561,9 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
       isImmersive: _isImmersive,
       onToggleComment: _controller.toggleCommentView,
       onTapBackground: _toggleImmersiveMode,
+      onZoomChanged: (isZoomed) {
+        _isImageZoomed = isZoomed;
+      },
     );
   }
 
